@@ -1,29 +1,63 @@
-import { Search, MoreVertical } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Search, MoreVertical, Plus, ArrowLeft } from "lucide-react";
 import { useConversations } from "@/hooks/useChat";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import ChatConversation from "@/components/ChatConversation";
 import { formatDistanceToNow } from "date-fns";
 
+interface UserProfile {
+  user_id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
 const ChatPage = () => {
+  const { user } = useAuth();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const { conversations, loading, fetchConversations } = useConversations();
+  const [showNewChat, setShowNewChat] = useState(false);
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const { conversations, loading, fetchConversations, startConversation } = useConversations();
 
-  if (selectedConversationId) {
-    const conv = conversations.find((c) => c.id === selectedConversationId);
-    if (conv && conv.other_user) {
-      return (
-        <ChatConversation
-          conversationId={conv.id}
-          otherUser={conv.other_user}
-          onBack={() => {
-            setSelectedConversationId(null);
-            fetchConversations();
-          }}
-        />
-      );
-    }
+  // Selected conversation
+  const selectedConv = selectedConversationId
+    ? conversations.find((c) => c.id === selectedConversationId)
+    : null;
+
+  if (selectedConversationId && selectedConv?.other_user) {
+    return (
+      <ChatConversation
+        conversationId={selectedConv.id}
+        otherUser={selectedConv.other_user}
+        onBack={() => {
+          setSelectedConversationId(null);
+          fetchConversations();
+        }}
+      />
+    );
   }
+
+  // Fetch all users for new chat
+  const fetchAllUsers = async () => {
+    if (!user) return;
+    setLoadingUsers(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("user_id, display_name, avatar_url")
+      .neq("user_id", user.id);
+    setAllUsers(data || []);
+    setLoadingUsers(false);
+  };
+
+  const handleStartChat = async (otherUserId: string) => {
+    const convId = await startConversation(otherUserId);
+    if (convId) {
+      setShowNewChat(false);
+      setSelectedConversationId(convId);
+    }
+  };
 
   const filtered = conversations.filter((c) =>
     !searchQuery || c.other_user?.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -38,13 +72,59 @@ const ChatPage = () => {
     }
   };
 
+  // New chat user picker
+  if (showNewChat) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <header className="sticky top-0 z-40 glass-card px-4 pt-4 pb-3">
+          <div className="flex items-center gap-3 mb-3">
+            <button onClick={() => setShowNewChat(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+              <ArrowLeft size={18} className="text-foreground" />
+            </button>
+            <h1 className="text-xl font-extrabold text-foreground">New Chat</h1>
+          </div>
+        </header>
+        <div className="px-4">
+          {loadingUsers ? (
+            <div className="flex justify-center py-10">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : allUsers.length === 0 ? (
+            <p className="text-center text-muted-foreground text-sm py-16">No users found</p>
+          ) : (
+            allUsers.map((u) => (
+              <button
+                key={u.user_id}
+                onClick={() => handleStartChat(u.user_id)}
+                className="w-full flex items-center gap-3 py-3 border-b border-border/50 hover:bg-muted/30 transition-colors rounded-lg px-2"
+              >
+                <img
+                  src={u.avatar_url || "/placeholder.svg"}
+                  alt={u.display_name || "User"}
+                  className="w-12 h-12 rounded-full object-cover bg-muted"
+                />
+                <h3 className="font-bold text-sm text-foreground">{u.display_name || "User"}</h3>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="sticky top-0 z-40 glass-card px-4 pt-4 pb-3">
         <div className="flex items-center justify-between mb-3 animate-slide-up">
           <h1 className="text-xl font-extrabold text-foreground">Messages</h1>
-          <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <MoreVertical size={16} className="text-muted-foreground" />
+          <button
+            onClick={() => {
+              setShowNewChat(true);
+              fetchAllUsers();
+            }}
+            className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shadow-md"
+          >
+            <Plus size={16} className="text-primary-foreground" />
           </button>
         </div>
         <div className="relative">
@@ -67,7 +147,15 @@ const ChatPage = () => {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-sm">No conversations yet</p>
-            <p className="text-muted-foreground text-xs mt-1">Start chatting from a user's profile!</p>
+            <button
+              onClick={() => {
+                setShowNewChat(true);
+                fetchAllUsers();
+              }}
+              className="mt-3 gradient-primary text-primary-foreground px-4 py-2 rounded-full text-xs font-bold"
+            >
+              Start a new chat
+            </button>
           </div>
         ) : (
           filtered.map((conv, index) => (
