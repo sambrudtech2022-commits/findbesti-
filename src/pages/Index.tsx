@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp } from "lucide-react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Globe } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
@@ -11,8 +11,11 @@ const tabs = [
 { label: "Popular", icon: TrendingUp }];
 
 
+const regions = ["All", "🇮🇳 India", "🇵🇰 Pakistan", "🇺🇸 USA", "🇧🇩 Bangladesh", "🇵🇭 Philippines"];
+
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const [activeRegion, setActiveRegion] = useState(0);
   const navigate = useNavigate();
 
   return (
@@ -24,9 +27,26 @@ const HomePage = () => {
             <h1 className="text-2xl font-extrabold">
               <span className="text-gradient">FIND BESTI 💫</span>
             </h1>
-            <button className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200">
-              <Search size={18} className="text-muted-foreground" />
-            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+                {regions.map((region, i) => (
+                  <button
+                    key={region}
+                    onClick={() => setActiveRegion(i)}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all duration-300 ${
+                      activeRegion === i
+                        ? "gradient-primary text-primary-foreground shadow-sm"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {region}
+                  </button>
+                ))}
+              </div>
+              <button className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200 shrink-0">
+                <Search size={18} className="text-muted-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
