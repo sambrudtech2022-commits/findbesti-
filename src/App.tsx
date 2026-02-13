@@ -11,6 +11,11 @@ import CallPage from "./pages/CallPage";
 import ProfilePage from "./pages/ProfilePage";
 import VideoCallPage from "./pages/VideoCallPage";
 import ProfileEditPage from "./pages/ProfileEditPage";
+import PremiumPage from "./pages/PremiumPage";
+import FavoritesPage from "./pages/FavoritesPage";
+import WhoLikedMePage from "./pages/WhoLikedMePage";
+import EarnCoinsPage from "./pages/EarnCoinsPage";
+import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +63,11 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/video-call/:userId" element={<ProtectedRoute><VideoCallPage /></ProtectedRoute>} />
               <Route path="/profile/edit" element={<ProtectedRoute><ProfileEditPage /></ProtectedRoute>} />
+              <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
+              <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
+              <Route path="/who-liked-me" element={<ProtectedRoute><WhoLikedMePage /></ProtectedRoute>} />
+              <Route path="/earn-coins" element={<ProtectedRoute><EarnCoinsPage /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />

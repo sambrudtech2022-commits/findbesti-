@@ -7,11 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import avatar1 from "@/assets/avatar1.jpg";
 
 const menuItems = [
-  { icon: Crown, label: "Premium", desc: "Unlock all features", color: "text-accent" },
-  { icon: Heart, label: "My Favorites", desc: "12 people", color: "text-primary" },
-  { icon: Star, label: "Who Liked Me", desc: "5 new", color: "text-accent" },
-  { icon: Gift, label: "Earn Coins", desc: "Watch & earn", color: "text-online" },
-  { icon: Settings, label: "Settings", desc: "Privacy, notifications", color: "text-muted-foreground" },
+  { icon: Crown, label: "Premium", desc: "Unlock all features", color: "text-accent", path: "/premium" },
+  { icon: Heart, label: "My Favorites", desc: "12 people", color: "text-primary", path: "/favorites" },
+  { icon: Star, label: "Who Liked Me", desc: "5 new", color: "text-accent", path: "/who-liked-me" },
+  { icon: Gift, label: "Earn Coins", desc: "Watch & earn", color: "text-online", path: "/earn-coins" },
+  { icon: Settings, label: "Settings", desc: "Privacy, notifications", color: "text-muted-foreground", path: "/settings" },
 ];
 
 const ProfilePage = () => {
@@ -94,6 +94,7 @@ const ProfilePage = () => {
         {menuItems.map((item) => (
           <button
             key={item.label}
+            onClick={() => navigate(item.path)}
             className="w-full flex items-center gap-3 py-3.5 px-3 rounded-xl hover:bg-muted/50 transition-colors"
           >
             <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
