@@ -21,6 +21,7 @@ const ProfileEditPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState("");
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -41,6 +42,7 @@ const ProfileEditPage = () => {
       setDisplayName(profile.display_name || "");
       setBio(profile.bio || "");
       setGender(profile.gender || "");
+      setPhone(profile.phone || "");
     }
   }, [profile]);
 
@@ -52,12 +54,16 @@ const ProfileEditPage = () => {
       if (trimmedName.length > 50) throw new Error("Name must be under 50 characters");
       if (trimmedBio.length > 300) throw new Error("Bio must be under 300 characters");
 
+      const trimmedPhone = phone.trim();
+      if (trimmedPhone && !/^\d{10}$/.test(trimmedPhone)) throw new Error("Enter valid 10-digit phone number");
+
       const { error } = await supabase
         .from("profiles")
         .update({
           display_name: trimmedName,
           bio: trimmedBio || null,
           gender: gender || null,
+          phone: trimmedPhone || null,
         })
         .eq("user_id", user!.id);
       if (error) throw error;
@@ -105,6 +111,23 @@ const ProfileEditPage = () => {
                 placeholder="Enter your name"
                 maxLength={50}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-foreground font-semibold">
+                Phone Number
+              </Label>
+              <div className="flex gap-2">
+                <span className="flex items-center px-3 rounded-md border border-input bg-muted text-sm text-muted-foreground">+91</span>
+                <Input
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="Enter 10-digit number"
+                  maxLength={10}
+                  inputMode="numeric"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
