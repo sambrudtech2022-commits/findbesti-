@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Phone, Lock, ArrowLeft, Shield } from "lucide-react";
 import { toast } from "sonner";
-import authHero from "@/assets/auth-hero.png";
+
 
 const AuthPage = () => {
   const [phone, setPhone] = useState("");
@@ -81,15 +81,8 @@ const AuthPage = () => {
           <p className="text-lg font-semibold text-primary-foreground/80">Zero fake profiles</p>
         </div>
 
-        {/* Hero Illustration */}
-        <div className="flex-1 flex items-end justify-center mt-4">
-          <img
-            src={authHero}
-            alt="Friends illustration"
-            className="w-full max-w-[320px] object-contain drop-shadow-xl"
-            style={{ animation: "float 3s ease-in-out infinite" }}
-          />
-        </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
         {/* Dot indicators */}
         <div className="flex items-center gap-2 mt-4">
