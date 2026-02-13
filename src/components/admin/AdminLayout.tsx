@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   LogOut,
   Shield,
+  ShieldCheck,
   Menu,
   X,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const navItems = [
   { icon: CreditCard, label: "Withdrawals", path: "/admin/withdrawals" },
   { icon: AlertTriangle, label: "Reports", path: "/admin/reports" },
   { icon: ShoppingBag, label: "Purchases", path: "/admin/purchases" },
+  { icon: ShieldCheck, label: "Manage Admins", path: "/admin/manage" },
 ];
 
 const AdminLayout = () => {
