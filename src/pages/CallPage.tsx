@@ -25,7 +25,13 @@ const CallPage = () => {
       <header className="sticky top-0 z-40 glass-card px-4 pt-4 pb-3">
         <h1 className="text-xl font-extrabold text-foreground mb-3">Calls</h1>
         <div className="flex gap-2">
-          <button className="flex-1 gradient-primary text-primary-foreground py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm shadow-lg hover:scale-[1.02] transition-transform">
+          <button
+            onClick={() => {
+              const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+              navigate(`/video-call/${randomUser.id}`);
+            }}
+            className="flex-1 gradient-primary text-primary-foreground py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm shadow-lg hover:scale-[1.02] transition-transform"
+          >
             <Video size={18} />
             Random Video Call
           </button>
