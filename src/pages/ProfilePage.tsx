@@ -1,4 +1,5 @@
 import { Settings, Edit3, Crown, Heart, Star, Gift, ChevronRight, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ const menuItems = [
 
 const ProfilePage = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -47,7 +49,10 @@ const ProfilePage = () => {
             ) : (
               <img src={avatarUrl} alt="My Profile" className="w-20 h-20 rounded-full object-cover border-3 border-primary-foreground/30" />
             )}
-            <button className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-card flex items-center justify-center shadow-md">
+            <button
+              onClick={() => navigate("/profile/edit")}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-card flex items-center justify-center shadow-md"
+            >
               <Edit3 size={12} className="text-primary" />
             </button>
           </div>

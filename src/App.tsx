@@ -10,6 +10,7 @@ import ChatPage from "./pages/ChatPage";
 import CallPage from "./pages/CallPage";
 import ProfilePage from "./pages/ProfilePage";
 import VideoCallPage from "./pages/VideoCallPage";
+import ProfileEditPage from "./pages/ProfileEditPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="/call" element={<ProtectedRoute><CallPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/video-call/:userId" element={<ProtectedRoute><VideoCallPage /></ProtectedRoute>} />
+              <Route path="/profile/edit" element={<ProtectedRoute><ProfileEditPage /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />
