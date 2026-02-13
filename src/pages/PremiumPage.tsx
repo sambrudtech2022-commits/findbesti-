@@ -1,16 +1,22 @@
-import { ArrowLeft, Crown, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, Crown, Check, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const plans = [
   {
     name: "Weekly",
     price: "₹99",
+    amount: 99,
     period: "/week",
     features: ["Unlimited likes", "See who liked you", "Priority matching"],
   },
   {
     name: "Monthly",
     price: "₹299",
+    amount: 299,
     period: "/month",
     popular: true,
     features: ["All Weekly features", "Super likes x5", "Profile boost", "Read receipts"],
@@ -18,13 +24,82 @@ const plans = [
   {
     name: "Yearly",
     price: "₹1,999",
+    amount: 1999,
     period: "/year",
     features: ["All Monthly features", "VIP badge", "Advanced filters", "Undo swipes"],
   },
 ];
 
+const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const PremiumPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handlePayment = async (plan: typeof plans[0]) => {
+    setLoadingPlan(plan.name);
+    try {
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error("Razorpay SDK load nahi hua. Internet check karein.");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
+        body: { amount: plan.amount, plan_name: plan.name },
+      });
+
+      if (error || !data?.order_id) {
+        throw new Error(error?.message || "Order create nahi ho paya");
+      }
+
+      const options = {
+        key: data.key_id,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Premium Plan",
+        description: `${plan.name} Subscription`,
+        order_id: data.order_id,
+        prefill: {
+          email: user?.email || "",
+        },
+        theme: { color: "#7c3aed" },
+        handler: () => {
+          toast.success(`🎉 ${plan.name} plan activated! Welcome to Premium!`);
+        },
+        modal: {
+          ondismiss: () => {
+            toast.info("Payment cancelled");
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", (response: any) => {
+        console.error("Payment failed:", response.error);
+        toast.error("Payment failed. Please try again.");
+      });
+      rzp.open();
+    } catch (err: any) {
+      console.error("Payment error:", err);
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -73,13 +148,19 @@ const PremiumPage = () => {
               ))}
             </ul>
             <button
-              className={`w-full mt-4 py-2.5 rounded-xl font-bold text-sm transition-colors ${
+              onClick={() => handlePayment(plan)}
+              disabled={loadingPlan !== null}
+              className={`w-full mt-4 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 ${
                 plan.popular
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-foreground hover:bg-muted/80"
-              }`}
+              } disabled:opacity-50`}
             >
-              Choose {plan.name}
+              {loadingPlan === plan.name ? (
+                <><Loader2 size={16} className="animate-spin" /> Processing...</>
+              ) : (
+                `Choose ${plan.name}`
+              )}
             </button>
           </div>
         ))}
