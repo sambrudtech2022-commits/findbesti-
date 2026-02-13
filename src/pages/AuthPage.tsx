@@ -133,7 +133,7 @@ const AuthPage = () => {
                 }
               }}
               disabled={loading || phone.replace(/\D/g, "").length !== 10}
-              className="w-full h-14 rounded-full bg-accent/20 text-accent font-bold text-lg shadow-none hover:bg-accent/30 transition-colors"
+              className="w-full h-11 rounded-full bg-accent/20 text-accent font-bold text-base shadow-none hover:bg-accent/30 transition-colors"
             >
               {loading ? "भेज रहे हैं..." : "Get OTP"}
             </Button>
@@ -163,7 +163,7 @@ const AuthPage = () => {
             <Button
               onClick={handleVerifyOtp}
               disabled={loading}
-              className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-base shadow-lg hover:opacity-90 transition-opacity"
+              className="w-full h-11 rounded-xl gradient-primary text-primary-foreground font-bold text-base shadow-lg hover:opacity-90 transition-opacity"
             >
               {loading ? "Verify कर रहे हैं..." : "OTP Verify करें"}
             </Button>
@@ -182,7 +182,7 @@ const AuthPage = () => {
           onClick={handleGoogleSignIn}
           disabled={googleLoading}
           variant="outline"
-          className="w-full h-12 rounded-xl border-border/60 font-bold text-sm gap-2"
+          className="w-full h-11 rounded-xl border-border/60 font-bold text-sm gap-2"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
