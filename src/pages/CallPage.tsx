@@ -77,7 +77,10 @@ const CallPage = () => {
                   >
                     <Video size={16} className="text-primary" />
                   </button>
-                  <button className="w-9 h-9 rounded-full bg-online/10 flex items-center justify-center hover:bg-online/20 transition-colors">
+                  <button
+                    onClick={() => navigate(`/audio-call/${call.user.id}`)}
+                    className="w-9 h-9 rounded-full bg-online/10 flex items-center justify-center hover:bg-online/20 transition-colors"
+                  >
                     <Phone size={16} className="text-online" />
                   </button>
                 </div>
