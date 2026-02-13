@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Gift, Play, Share2, Users, CheckCircle, Wallet, IndianRupee, Loader2 } from "lucide-react";
+import { ArrowLeft, Gift, Play, Share2, Users, CheckCircle, Wallet, IndianRupee, Loader2, Clock, CircleDot } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ const EarnCoinsPage = () => {
   const [loading, setLoading] = useState(true);
   const [taskLoading, setTaskLoading] = useState<string | null>(null);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
 
   const rupees = coins;
 
@@ -40,13 +41,15 @@ const EarnCoinsPage = () => {
     
     const today = new Date().toISOString().split("T")[0];
 
-    const [profileRes, completionsRes] = await Promise.all([
+    const [profileRes, completionsRes, withdrawalsRes] = await Promise.all([
       supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle(),
       supabase.from("task_completions").select("task_id").eq("user_id", user.id).eq("completed_date", today),
+      supabase.from("withdrawal_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
     ]);
 
     if (profileRes.data) setCoins(profileRes.data.coins ?? 0);
     if (completionsRes.data) setCompletedTasks(completionsRes.data.map((t: any) => t.task_id));
+    if (withdrawalsRes.data) setWithdrawals(withdrawalsRes.data);
     setLoading(false);
   };
 
@@ -101,9 +104,9 @@ const EarnCoinsPage = () => {
       });
       if (error) throw error;
       toast.success(`₹${coins} withdrawal request भेजा गया! UPI: ${upiId}`);
-      setCoins(0);
       setShowWithdraw(false);
       setUpiId("");
+      fetchData();
     } catch (error: any) {
       toast.error(error.message || "Withdrawal failed");
     } finally {
@@ -235,6 +238,43 @@ const EarnCoinsPage = () => {
             Coins 24-48 hours में आपके UPI account में transfer हो जाएंगे। Minimum withdrawal ₹100 है।
           </p>
         </div>
+
+        {/* Withdrawal History */}
+        {withdrawals.length > 0 && (
+          <div className="mt-5">
+            <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
+              <Clock size={16} className="text-muted-foreground" />
+              Withdrawal History
+            </h2>
+            <div className="space-y-2">
+              {withdrawals.map((w) => {
+                const statusColor = w.status === "completed" ? "text-online" : w.status === "failed" ? "text-destructive" : "text-accent";
+                const statusBg = w.status === "completed" ? "bg-online/10" : w.status === "failed" ? "bg-destructive/10" : "bg-accent/10";
+                const date = new Date(w.created_at);
+                const dateStr = date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+                return (
+                  <div key={w.id} className="flex items-center gap-3 py-3 px-3 rounded-xl bg-card border border-border/50">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${statusBg}`}>
+                      <IndianRupee size={16} className={statusColor} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-bold text-sm text-foreground">₹{w.amount}</p>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusBg} ${statusColor} capitalize`}>
+                          {w.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <p className="text-[10px] text-muted-foreground">{w.upi_id}</p>
+                        <p className="text-[10px] text-muted-foreground">{dateStr}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
