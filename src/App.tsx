@@ -19,6 +19,7 @@ import EarnCoinsPage from "./pages/EarnCoinsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminWithdrawalsPage from "./pages/admin/AdminWithdrawalsPage";
@@ -78,13 +79,17 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Admin routes - no max-w container */}
+            {/* Admin login - standalone */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-            <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
-            <Route path="/admin/withdrawals" element={<AdminRoute><AdminWithdrawalsPage /></AdminRoute>} />
-            <Route path="/admin/reports" element={<AdminRoute><AdminReportsPage /></AdminRoute>} />
-            <Route path="/admin/purchases" element={<AdminRoute><AdminPurchasesPage /></AdminRoute>} />
+
+            {/* Admin routes - with sidebar layout */}
+            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+              <Route path="reports" element={<AdminReportsPage />} />
+              <Route path="purchases" element={<AdminPurchasesPage />} />
+            </Route>
 
             {/* App routes */}
             <Route path="/*" element={

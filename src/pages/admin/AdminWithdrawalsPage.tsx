@@ -1,5 +1,4 @@
-import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { CheckCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 const AdminWithdrawalsPage = () => {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: withdrawals, isLoading } = useQuery({
@@ -38,63 +36,52 @@ const AdminWithdrawalsPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-6">
-      <div className="gradient-primary pt-12 pb-6 px-4 rounded-b-3xl">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/admin")} className="w-9 h-9 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-            <ArrowLeft size={18} className="text-primary-foreground" />
-          </button>
-          <h1 className="text-xl font-extrabold text-primary-foreground">Withdrawals</h1>
-        </div>
-      </div>
-
-      <div className="px-4 mt-4 space-y-2">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)
-        ) : withdrawals?.length === 0 ? (
-          <p className="text-center text-muted-foreground text-sm py-8">No withdrawal requests</p>
-        ) : (
-          withdrawals?.map((w) => (
-            <div key={w.id} className="p-4 rounded-xl bg-card border border-border/50 space-y-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-bold text-foreground">₹{w.amount}</p>
-                  <p className="text-xs text-muted-foreground">UPI: {w.upi_id}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(w.created_at).toLocaleDateString("en-IN")}
-                  </p>
-                </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                  w.status === "pending" ? "bg-accent/20 text-accent" :
-                  w.status === "approved" ? "bg-online/20 text-online" :
-                  "bg-destructive/20 text-destructive"
-                }`}>
-                  {w.status}
-                </span>
+    <div className="space-y-2 max-w-2xl">
+      {isLoading ? (
+        Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)
+      ) : withdrawals?.length === 0 ? (
+        <p className="text-center text-muted-foreground text-sm py-8">No withdrawal requests</p>
+      ) : (
+        withdrawals?.map((w) => (
+          <div key={w.id} className="p-4 rounded-xl bg-card border border-border/50 space-y-2">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-bold text-foreground">₹{w.amount}</p>
+                <p className="text-xs text-muted-foreground">UPI: {w.upi_id}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(w.created_at).toLocaleDateString("en-IN")}
+                </p>
               </div>
-              {w.status === "pending" && (
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="flex-1 rounded-lg h-8 text-xs"
-                    onClick={() => updateStatus.mutate({ id: w.id, status: "approved" })}
-                  >
-                    <CheckCircle size={14} className="mr-1" /> Approve
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="flex-1 rounded-lg h-8 text-xs"
-                    onClick={() => updateStatus.mutate({ id: w.id, status: "rejected" })}
-                  >
-                    <XCircle size={14} className="mr-1" /> Reject
-                  </Button>
-                </div>
-              )}
+              <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                w.status === "pending" ? "bg-accent/20 text-accent" :
+                w.status === "approved" ? "bg-online/20 text-online" :
+                "bg-destructive/20 text-destructive"
+              }`}>
+                {w.status}
+              </span>
             </div>
-          ))
-        )}
-      </div>
+            {w.status === "pending" && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1 rounded-lg h-8 text-xs"
+                  onClick={() => updateStatus.mutate({ id: w.id, status: "approved" })}
+                >
+                  <CheckCircle size={14} className="mr-1" /> Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="flex-1 rounded-lg h-8 text-xs"
+                  onClick={() => updateStatus.mutate({ id: w.id, status: "rejected" })}
+                >
+                  <XCircle size={14} className="mr-1" /> Reject
+                </Button>
+              </div>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 };
