@@ -59,6 +59,63 @@ export type Database = {
         }
         Relationships: []
       }
+      task_completions: {
+        Row: {
+          coins_earned: number
+          completed_at: string
+          completed_date: string
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          coins_earned?: number
+          completed_at?: string
+          completed_date?: string
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          coins_earned?: number
+          completed_at?: string
+          completed_date?: string
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+          upi_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          upi_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          upi_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
