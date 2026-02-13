@@ -1,32 +1,30 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { mockUsers } from "@/data/mockData";
-import { PhoneOff, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
-import { useState, useEffect } from "react";
+import { PhoneOff, Mic, MicOff, Volume2, VolumeX, Loader2 } from "lucide-react";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 
 const AudioCallPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const user = mockUsers.find((u) => u.id === userId) || mockUsers[0];
-  const [isMuted, setIsMuted] = useState(false);
-  const [isSpeaker, setIsSpeaker] = useState(false);
-  const [callTime, setCallTime] = useState(0);
-  const [callStatus, setCallStatus] = useState<"ringing" | "connected">("ringing");
 
-  useEffect(() => {
-    const ringTimer = setTimeout(() => setCallStatus("connected"), 2500);
-    return () => clearTimeout(ringTimer);
-  }, []);
+  const channelName = `call_${[userId, "me"].sort().join("_")}`;
 
-  useEffect(() => {
-    if (callStatus !== "connected") return;
-    const interval = setInterval(() => setCallTime((t) => t + 1), 1000);
-    return () => clearInterval(interval);
-  }, [callStatus]);
+  const {
+    joined,
+    joining,
+    error,
+    isMuted,
+    remoteUsers,
+    callTime,
+    formatTime,
+    toggleMute,
+    leave,
+  } = useAgoraCall({ channelName, callType: "audio" });
 
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  const handleEndCall = async () => {
+    await leave();
+    navigate(-1);
   };
 
   return (
@@ -39,18 +37,21 @@ const AudioCallPage = () => {
             alt={user.name}
             className="w-32 h-32 rounded-full object-cover border-4 border-primary-foreground/30 shadow-2xl"
           />
-          {callStatus === "ringing" && (
+          {joining && (
             <div className="absolute inset-0 rounded-full border-4 border-primary-foreground/50 animate-ping" />
           )}
         </div>
         <h2 className="text-2xl font-extrabold text-primary-foreground mt-2">{user.name}</h2>
         <p className="text-primary-foreground/70 text-sm font-medium">
-          {callStatus === "ringing" ? "Ringing..." : formatTime(callTime)}
+          {joining ? "Connecting..." : error ? "Connection failed" : formatTime(callTime)}
         </p>
+        {error && (
+          <p className="text-primary-foreground/60 text-xs bg-destructive/30 rounded-lg px-3 py-1">{error}</p>
+        )}
       </div>
 
       {/* Waveform animation */}
-      {callStatus === "connected" && (
+      {joined && remoteUsers.length > 0 && (
         <div className="flex items-end gap-1 h-12">
           {[...Array(12)].map((_, i) => (
             <div
@@ -66,10 +67,18 @@ const AudioCallPage = () => {
         </div>
       )}
 
+      {joining && (
+        <Loader2 className="text-primary-foreground/50 animate-spin" size={32} />
+      )}
+
+      {joined && remoteUsers.length === 0 && !joining && (
+        <p className="text-primary-foreground/50 text-sm">Waiting for user to join...</p>
+      )}
+
       {/* Controls */}
       <div className="flex items-center justify-center gap-6 mb-8">
         <button
-          onClick={() => setIsMuted(!isMuted)}
+          onClick={toggleMute}
           className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
             isMuted ? "bg-destructive" : "bg-primary-foreground/20 backdrop-blur-sm"
           }`}
@@ -82,20 +91,13 @@ const AudioCallPage = () => {
         </button>
 
         <button
-          onClick={() => setIsSpeaker(!isSpeaker)}
-          className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
-            isSpeaker ? "bg-accent" : "bg-primary-foreground/20 backdrop-blur-sm"
-          }`}
+          className="w-16 h-16 rounded-full flex items-center justify-center bg-primary-foreground/20 backdrop-blur-sm"
         >
-          {isSpeaker ? (
-            <Volume2 size={24} className="text-primary-foreground" />
-          ) : (
-            <VolumeX size={24} className="text-primary-foreground" />
-          )}
+          <Volume2 size={24} className="text-primary-foreground" />
         </button>
 
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleEndCall}
           className="w-18 h-18 w-[72px] h-[72px] rounded-full bg-destructive flex items-center justify-center shadow-xl hover:scale-105 transition-transform"
         >
           <PhoneOff size={28} className="text-primary-foreground" />
