@@ -12,8 +12,8 @@ const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Hide on video call screen
-  if (location.pathname.startsWith("/video-call")) return null;
+  // Hide on video call and auth screens
+  if (location.pathname.startsWith("/video-call") || location.pathname === "/auth") return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-border/50 safe-bottom">

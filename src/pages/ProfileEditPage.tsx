@@ -59,13 +59,13 @@ const ProfileEditPage = () => {
 
       const { error } = await supabase
         .from("profiles")
-        .update({
+        .upsert({
+          user_id: user!.id,
           display_name: trimmedName,
           bio: trimmedBio || null,
           gender: gender || null,
           phone: trimmedPhone || null,
-        })
-        .eq("user_id", user!.id);
+        }, { onConflict: "user_id" });
       if (error) throw error;
     },
     onSuccess: () => {
