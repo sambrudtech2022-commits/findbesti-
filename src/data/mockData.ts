@@ -20,16 +20,16 @@ export interface UserProfile {
 export const mockUsers: UserProfile[] = [
   { id: "1", name: "Priya", age: 22, avatar: avatar1, isOnline: true, isLive: true, country: "India", language: "Hindi" },
   { id: "2", name: "Ananya", age: 24, avatar: avatar2, isOnline: true, isLive: false, country: "India", language: "English" },
-  { id: "3", name: "Meera", age: 21, avatar: avatar3, isOnline: true, isLive: true, country: "India", language: "Hindi" },
-  { id: "4", name: "Kavya", age: 23, avatar: avatar4, isOnline: false, isLive: false, country: "India", language: "Tamil" },
-  { id: "5", name: "Riya", age: 25, avatar: avatar6, isOnline: true, isLive: false, country: "India", language: "Bengali" },
+  { id: "3", name: "Meera", age: 21, avatar: avatar3, isOnline: true, isLive: true, country: "Pakistan", language: "Urdu" },
+  { id: "4", name: "Kavya", age: 23, avatar: avatar4, isOnline: false, isLive: false, country: "USA", language: "English" },
+  { id: "5", name: "Riya", age: 25, avatar: avatar6, isOnline: true, isLive: false, country: "Bangladesh", language: "Bengali" },
   { id: "6", name: "Sneha", age: 22, avatar: avatar7, isOnline: true, isLive: true, country: "India", language: "Hindi" },
-  { id: "7", name: "Divya", age: 20, avatar: avatar8, isOnline: true, isLive: false, country: "India", language: "English" },
-  { id: "8", name: "Neha", age: 24, avatar: avatar1, isOnline: false, isLive: false, country: "India", language: "Marathi" },
+  { id: "7", name: "Divya", age: 20, avatar: avatar8, isOnline: true, isLive: false, country: "Philippines", language: "English" },
+  { id: "8", name: "Neha", age: 24, avatar: avatar1, isOnline: false, isLive: false, country: "Pakistan", language: "Urdu" },
   { id: "9", name: "Simran", age: 23, avatar: avatar3, isOnline: true, isLive: true, country: "India", language: "Punjabi" },
-  { id: "10", name: "Aisha", age: 21, avatar: avatar6, isOnline: true, isLive: false, country: "India", language: "Urdu" },
-  { id: "11", name: "Tanvi", age: 22, avatar: avatar7, isOnline: true, isLive: true, country: "India", language: "Hindi" },
-  { id: "12", name: "Pooja", age: 25, avatar: avatar8, isOnline: false, isLive: false, country: "India", language: "Gujarati" },
+  { id: "10", name: "Aisha", age: 21, avatar: avatar6, isOnline: true, isLive: false, country: "Bangladesh", language: "Bengali" },
+  { id: "11", name: "Tanvi", age: 22, avatar: avatar7, isOnline: true, isLive: true, country: "USA", language: "English" },
+  { id: "12", name: "Pooja", age: 25, avatar: avatar8, isOnline: false, isLive: false, country: "Philippines", language: "Filipino" },
 ];
 
 export interface ChatMessage {

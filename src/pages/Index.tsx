@@ -12,6 +12,13 @@ const tabs = [
 
 
 const regions = ["All", "🇮🇳 India", "🇵🇰 Pakistan", "🇺🇸 USA", "🇧🇩 Bangladesh", "🇵🇭 Philippines"];
+const regionCountryMap: Record<string, string> = {
+  "🇮🇳 India": "India",
+  "🇵🇰 Pakistan": "Pakistan",
+  "🇺🇸 USA": "USA",
+  "🇧🇩 Bangladesh": "Bangladesh",
+  "🇵🇭 Philippines": "Philippines",
+};
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -95,14 +102,19 @@ const HomePage = () => {
       {/* User Grid */}
       <div className="px-4">
         <div className="grid grid-cols-2 gap-3">
-          {mockUsers.map((user, index) =>
-          <div
-            key={user.id}
-            className="animate-stagger-in"
-            style={{ animationDelay: `${300 + index * 100}ms` }}>
-
-              <UserCard user={user} />
-            </div>
+          {mockUsers
+            .filter((user) => {
+              if (activeRegion === 0) return true;
+              const selectedCountry = regionCountryMap[regions[activeRegion]];
+              return user.country === selectedCountry;
+            })
+            .map((user, index) =>
+            <div
+              key={user.id}
+              className="animate-stagger-in"
+              style={{ animationDelay: `${300 + index * 100}ms` }}>
+                <UserCard user={user} />
+              </div>
           )}
         </div>
       </div>
