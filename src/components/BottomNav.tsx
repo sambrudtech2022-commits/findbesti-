@@ -20,23 +20,18 @@ const BottomNav = () => {
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;
-          return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          return (
+            <button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              className={`flex flex-col items-center justify-center gap-0.5 w-16 transition-colors ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <tab.icon size={20} />
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </button>
+          );
         })}
       </div>
     </nav>);
