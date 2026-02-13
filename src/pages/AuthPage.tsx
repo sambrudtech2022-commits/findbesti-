@@ -103,26 +103,26 @@ const AuthPage = () => {
         <div className="glass-card rounded-2xl p-6 shadow-xl">
           {/* Mode Toggle */}
           <div className="flex gap-2 mb-6">
-            
-
-
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
+            <button
+              onClick={() => setMode("login")}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+                mode === "login"
+                  ? "gradient-primary text-primary-foreground shadow-md"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => setMode("signup")}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+                mode === "signup"
+                  ? "gradient-primary text-primary-foreground shadow-md"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              Sign Up
+            </button>
           </div>
 
           {/* Method Tabs */}
