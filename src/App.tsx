@@ -10,6 +10,7 @@ import ChatPage from "./pages/ChatPage";
 import CallPage from "./pages/CallPage";
 import ProfilePage from "./pages/ProfilePage";
 import VideoCallPage from "./pages/VideoCallPage";
+import AudioCallPage from "./pages/AudioCallPage";
 import ProfileEditPage from "./pages/ProfileEditPage";
 import PremiumPage from "./pages/PremiumPage";
 import FavoritesPage from "./pages/FavoritesPage";
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/call" element={<ProtectedRoute><CallPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/video-call/:userId" element={<ProtectedRoute><VideoCallPage /></ProtectedRoute>} />
+              <Route path="/audio-call/:userId" element={<ProtectedRoute><AudioCallPage /></ProtectedRoute>} />
               <Route path="/profile/edit" element={<ProtectedRoute><ProfileEditPage /></ProtectedRoute>} />
               <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
               <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />

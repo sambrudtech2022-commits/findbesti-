@@ -35,7 +35,13 @@ const CallPage = () => {
             <Video size={18} />
             Random Video Call
           </button>
-          <button className="flex-1 bg-online text-primary-foreground py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm shadow-lg hover:scale-[1.02] transition-transform">
+          <button
+            onClick={() => {
+              const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+              navigate(`/audio-call/${randomUser.id}`);
+            }}
+            className="flex-1 bg-online text-primary-foreground py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm shadow-lg hover:scale-[1.02] transition-transform"
+          >
             <Phone size={18} />
             Voice Call
           </button>
