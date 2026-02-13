@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Send, Phone, Video, MoreVertical } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { ChatThread } from "@/data/mockData";
 
 interface ChatConversationProps {
@@ -16,6 +17,7 @@ const demoMessages = [
 ];
 
 const ChatConversation = ({ chat, onBack }: ChatConversationProps) => {
+  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(demoMessages);
 
@@ -42,10 +44,10 @@ const ChatConversation = ({ chat, onBack }: ChatConversationProps) => {
             {chat.user.isOnline ? "Online" : "Offline"}
           </p>
         </div>
-        <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+        <button onClick={() => navigate(`/audio-call/${chat.user.id}`)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
           <Phone size={16} className="text-primary" />
         </button>
-        <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+        <button onClick={() => navigate(`/video-call/${chat.user.id}`)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
           <Video size={16} className="text-primary" />
         </button>
         <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
