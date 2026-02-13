@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -148,7 +148,6 @@ export function useMessages(conversationId: string | null) {
 
     fetchMessages();
 
-    // Mark messages as read
     if (user) {
       supabase
         .from("messages")
@@ -159,7 +158,6 @@ export function useMessages(conversationId: string | null) {
         .then(() => {});
     }
 
-    // Subscribe to realtime
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -176,7 +174,6 @@ export function useMessages(conversationId: string | null) {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
           });
-          // Auto-mark as read if not sender
           if (user && newMsg.sender_id !== user.id) {
             supabase.from("messages").update({ read: true }).eq("id", newMsg.id).then(() => {});
           }
@@ -204,4 +201,44 @@ export function useMessages(conversationId: string | null) {
   }, [user, conversationId]);
 
   return { messages, loading, sendMessage };
+}
+
+export function useTypingIndicator(conversationId: string | null) {
+  const { user } = useAuth();
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  useEffect(() => {
+    if (!conversationId || !user) return;
+
+    const channel = supabase.channel(`typing:${conversationId}`);
+    channelRef.current = channel;
+
+    channel
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if (payload.payload?.user_id !== user.id) {
+          setIsOtherTyping(true);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => setIsOtherTyping(false), 3000);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId, user]);
+
+  const sendTyping = useCallback(() => {
+    if (!channelRef.current || !user) return;
+    channelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { user_id: user.id },
+    });
+  }, [user]);
+
+  return { isOtherTyping, sendTyping };
 }

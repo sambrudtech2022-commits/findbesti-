@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Send, Phone, Video, MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useMessages } from "@/hooks/useChat";
+import { useMessages, useTypingIndicator } from "@/hooks/useChat";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ChatConversationProps {
@@ -19,11 +19,12 @@ const ChatConversation = ({ conversationId, otherUser, onBack }: ChatConversatio
   const { user } = useAuth();
   const [message, setMessage] = useState("");
   const { messages, loading, sendMessage } = useMessages(conversationId);
+  const { isOtherTyping, sendTyping } = useTypingIndicator(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isOtherTyping]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -95,6 +96,15 @@ const ChatConversation = ({ conversationId, otherUser, onBack }: ChatConversatio
             );
           })
         )}
+        {isOtherTyping && (
+          <div className="flex justify-start">
+            <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+              <span className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "150ms" }} />
+              <span className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -103,7 +113,7 @@ const ChatConversation = ({ conversationId, otherUser, onBack }: ChatConversatio
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => { setMessage(e.target.value); sendTyping(); }}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Type a message..."
             className="flex-1 bg-muted rounded-full px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
