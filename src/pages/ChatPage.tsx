@@ -17,7 +17,7 @@ const ChatPage = () => {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-40 glass-card px-4 pt-4 pb-3">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 animate-slide-up">
           <h1 className="text-xl font-extrabold text-foreground">Messages</h1>
           <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
             <MoreVertical size={16} className="text-muted-foreground" />
@@ -35,8 +35,8 @@ const ChatPage = () => {
 
       {/* Online users strip */}
       <div className="px-4 py-3 flex gap-4 overflow-x-auto no-scrollbar">
-        {mockChats.map((chat) => (
-          <div key={chat.id} className="flex flex-col items-center gap-1 min-w-[56px]">
+        {mockChats.map((chat, index) => (
+          <div key={chat.id} className="flex flex-col items-center gap-1 min-w-[56px] animate-stagger-in" style={{ animationDelay: `${index * 80}ms` }}>
             <div className="relative">
               <img
                 src={chat.user.avatar}
@@ -54,11 +54,12 @@ const ChatPage = () => {
 
       {/* Chat list */}
       <div className="px-4">
-        {mockChats.map((chat) => (
+        {mockChats.map((chat, index) => (
           <button
             key={chat.id}
             onClick={() => setSelectedChat(chat.id)}
-            className="w-full flex items-center gap-3 py-3 border-b border-border/50 hover:bg-muted/30 transition-colors rounded-lg px-2"
+            className="w-full flex items-center gap-3 py-3 border-b border-border/50 hover:bg-muted/30 transition-colors rounded-lg px-2 animate-stagger-in"
+            style={{ animationDelay: `${200 + index * 80}ms` }}
           >
             <div className="relative">
               <img
