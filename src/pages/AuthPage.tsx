@@ -84,12 +84,6 @@ const AuthPage = () => {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Dot indicators */}
-        <div className="flex items-center gap-2 mt-4">
-          <div className="w-2 h-2 rounded-full bg-primary-foreground/40" />
-          <div className="w-2 h-2 rounded-full bg-primary-foreground/40" />
-          <div className="w-8 h-2 rounded-full bg-primary-foreground" />
-        </div>
       </div>
 
       {/* Bottom Auth Card */}
