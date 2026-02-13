@@ -189,28 +189,43 @@ const AuthPage = () => {
             <TabsContent value="phone" className="space-y-4">
               {!otpSent ? (
                 <>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-lg font-bold text-foreground">Mobile number</h3>
+                  <div className="flex items-center gap-0 h-14 rounded-xl bg-muted/50 border border-border/60 overflow-hidden">
+                    <span className="pl-4 pr-2 text-base font-semibold text-primary shrink-0">+91</span>
+                    <div className="w-px h-6 bg-border/60" />
                     <Input
                       type="tel"
-                      placeholder="+91XXXXXXXXXX"
+                      placeholder="Enter mobile number"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="pl-10 h-12 rounded-xl border-border/60 bg-background"
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                        setPhone(val);
+                      }}
+                      className="border-0 bg-transparent h-full text-base font-medium focus-visible:ring-0 shadow-none pl-3"
                     />
                   </div>
+                  <p className="text-xs font-medium text-online">
+                    We don't share your number with anyone
+                  </p>
                   <Button
-                    onClick={handleSendOtp}
-                    disabled={loading}
-                    className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-base shadow-lg hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      if (phone.length === 10) {
+                        setPhone("+91" + phone);
+                        handleSendOtp();
+                      } else {
+                        toast.error("कृपया 10 digit का mobile number भरें");
+                      }
+                    }}
+                    disabled={loading || phone.replace(/\D/g, "").length !== 10}
+                    className="w-full h-14 rounded-full bg-accent/20 text-accent font-bold text-lg shadow-none hover:bg-accent/30 transition-colors"
                   >
-                    {loading ? "भेज रहे हैं..." : "OTP भेजें"}
+                    {loading ? "भेज रहे हैं..." : "Get OTP"}
                   </Button>
                 </>
               ) : (
                 <>
                   <button
-                    onClick={() => setOtpSent(false)}
+                    onClick={() => { setOtpSent(false); setPhone(phone.replace("+91", "")); }}
                     className="flex items-center gap-1 text-sm text-muted-foreground mb-2"
                   >
                     <ArrowLeft className="w-4 h-4" /> नंबर बदलें
@@ -244,7 +259,9 @@ const AuthPage = () => {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-6 mb-4">
-          जारी रखकर, आप हमारी Terms of Service और Privacy Policy से सहमत हैं।
+          By proceeding I accept the{" "}
+          <span className="font-bold text-foreground">Community Guidelines</span> &{" "}
+          <span className="font-bold text-foreground">Terms of Use</span>
         </p>
       </div>
     </div>
