@@ -22,7 +22,7 @@ const CallPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-40 glass-card px-4 pt-4 pb-3">
+      <header className="sticky top-0 z-40 glass-card px-4 pt-4 pb-3 animate-slide-up">
         <h1 className="text-xl font-extrabold text-foreground mb-3">Calls</h1>
         <div className="flex gap-2">
           <button
@@ -59,7 +59,7 @@ const CallPage = () => {
             const CallIcon = callIcons[call.type].icon;
             const iconColor = callIcons[call.type].color;
             return (
-              <div key={i} className="flex items-center gap-3 py-3 px-2 rounded-xl hover:bg-muted/30 transition-colors">
+              <div key={i} className="flex items-center gap-3 py-3 px-2 rounded-xl hover:bg-muted/30 transition-colors animate-stagger-in" style={{ animationDelay: `${200 + i * 80}ms` }}>
                 <img src={call.user.avatar} alt={call.user.name} className="w-12 h-12 rounded-full object-cover" />
                 <div className="flex-1">
                   <h3 className="font-bold text-sm text-foreground">{call.user.name}</h3>
