@@ -93,9 +93,9 @@ const AuthPage = () => {
       </div>
 
       {/* Bottom Auth Card */}
-      <div className="bg-card rounded-t-3xl -mt-6 relative z-10 px-6 pt-7 pb-6 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
+      <div className="bg-card rounded-t-3xl -mt-6 relative z-10 px-5 pt-5 pb-4 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
         {!otpSent ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Phone className="w-5 h-5 text-foreground" />
               <h3 className="text-lg font-bold text-foreground">Mobile number</h3>
@@ -132,7 +132,7 @@ const AuthPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <button
               onClick={() => { setOtpSent(false); setOtp(""); }}
               className="flex items-center gap-1 text-sm text-muted-foreground mb-2"
@@ -164,7 +164,7 @@ const AuthPage = () => {
         )}
 
         {/* Divider */}
-        <div className="flex items-center gap-3 my-5">
+        <div className="flex items-center gap-3 my-3">
           <div className="flex-1 h-px bg-border/60" />
           <span className="text-xs text-muted-foreground font-medium">या</span>
           <div className="flex-1 h-px bg-border/60" />
@@ -187,7 +187,7 @@ const AuthPage = () => {
         </Button>
 
         {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground mt-5">
+        <p className="text-center text-xs text-muted-foreground mt-3">
           By proceeding I accept the{" "}
           <span className="font-bold text-foreground">Community Guidelines</span> &{" "}
           <span className="font-bold text-foreground">Terms of Use</span>
