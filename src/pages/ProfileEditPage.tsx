@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Save } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Save, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/sonner";
+import avatar1 from "@/assets/avatar1.jpg";
 
 const genderOptions = ["Male", "Female", "Other"];
 
@@ -18,10 +19,14 @@ const ProfileEditPage = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
   const [phone, setPhone] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -43,8 +48,53 @@ const ProfileEditPage = () => {
       setBio(profile.bio || "");
       setGender(profile.gender || "");
       setPhone(profile.phone || "");
+      setAvatarUrl(profile.avatar_url || null);
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast("Please select an image file");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast("Image must be under 2MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `${user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .upsert({ user_id: user.id, avatar_url: newUrl }, { onConflict: "user_id" });
+      if (updateError) throw updateError;
+
+      setAvatarUrl(newUrl);
+      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+      toast("Profile photo updated!");
+    } catch (err: any) {
+      toast(err.message || "Failed to upload photo");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -100,6 +150,37 @@ const ProfileEditPage = () => {
           </div>
         ) : (
           <>
+            {/* Avatar Upload */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative">
+                <img
+                  src={avatarUrl || avatar1}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-border"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md"
+                >
+                  {uploadingAvatar ? (
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Camera size={14} className="text-primary-foreground" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">Tap to change photo</p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="displayName" className="text-foreground font-semibold">
                 Display Name
