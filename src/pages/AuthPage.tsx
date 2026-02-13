@@ -64,7 +64,7 @@ const AuthPage = () => {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <div className="gradient-primary pt-12 pb-16 px-6 text-center rounded-b-[2.5rem]">
-        <h1 className="text-3xl font-extrabold text-primary-foreground tracking-tight">FIND BESTI 🫶
+        <h1 className="text-3xl font-extrabold text-primary-foreground tracking-tight">FIND BESTI  💫
 
         </h1>
         <p className="text-primary-foreground/80 mt-2 text-sm font-medium">
