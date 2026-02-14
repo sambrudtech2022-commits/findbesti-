@@ -177,15 +177,6 @@ const AuthPage = () => {
       <div className="bg-card rounded-t-[2rem] -mt-8 relative z-10 px-5 pt-6 pb-5 shadow-[0_-12px_40px_rgba(0,0,0,0.1)] animate-slide-up" style={{ animationDelay: "0.25s" }}>
         {!otpSent ? (
           <div className="space-y-3.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-md">
-                <Phone className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="text-lg font-extrabold text-foreground leading-tight">Login / Sign Up</h3>
-                <p className="text-xs text-muted-foreground">Enter your mobile number</p>
-              </div>
-            </div>
             <div className="flex items-center gap-0 h-14 rounded-2xl bg-muted/40 border-2 border-border/40 overflow-hidden focus-within:border-primary/40 transition-colors">
               <span className="pl-4 pr-2 text-base font-bold text-primary shrink-0">+91</span>
               <div className="w-px h-7 bg-border/50" />
