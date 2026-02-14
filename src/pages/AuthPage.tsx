@@ -62,7 +62,12 @@ const AuthPage = () => {
     } catch (error: any) {
       console.error("Send OTP error:", error);
       // Reset recaptcha on error
+      if (recaptchaVerifierRef.current) {
+        try { recaptchaVerifierRef.current.clear(); } catch (_) {}
+      }
       recaptchaVerifierRef.current = null;
+      const container = document.getElementById("recaptcha-container");
+      if (container) container.innerHTML = "";
       toast.error(error.message || "OTP भेजने में error आया");
     } finally {
       setLoading(false);
