@@ -11,6 +11,7 @@ import {
   LogOut,
   Shield,
   ShieldCheck,
+  KeyRound,
   Menu,
   X,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const navItems = [
   { icon: ShieldCheck, label: "Manage Admins", path: "/admin/manage" },
   { icon: Bell, label: "Notifications", path: "/admin/notifications" },
   { icon: Settings, label: "App Settings", path: "/admin/settings" },
+  { icon: KeyRound, label: "Secrets", path: "/admin/secrets" },
 ];
 
 const AdminLayout = () => {

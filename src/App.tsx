@@ -29,6 +29,7 @@ import AdminPurchasesPage from "./pages/admin/AdminPurchasesPage";
 import AdminManagePage from "./pages/admin/AdminManagePage";
 import AdminNotificationsPage from "./pages/admin/AdminNotificationsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import AdminSecretsPage from "./pages/admin/AdminSecretsPage";
 import MaintenanceScreen from "./components/MaintenanceScreen";
 import AnnouncementBanner from "./components/AnnouncementBanner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -97,6 +98,7 @@ const App = () => (
               <Route path="manage" element={<AdminManagePage />} />
               <Route path="notifications" element={<AdminNotificationsPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
+              <Route path="secrets" element={<AdminSecretsPage />} />
             </Route>
 
             {/* App routes */}
