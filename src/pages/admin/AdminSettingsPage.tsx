@@ -4,8 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Settings, Wrench, Megaphone, Smartphone, Save } from "lucide-react";
+import { Settings, Wrench, Megaphone, Smartphone, Save, Phone, Video, Crown, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+
+interface SubscriptionPlan {
+  name: string;
+  price: string;
+  amount: number;
+  period: string;
+  popular: boolean;
+  features: string[];
+}
 
 interface AppSettings {
   id: string;
@@ -15,6 +24,9 @@ interface AppSettings {
   announcement_text: string | null;
   announcement_active: boolean;
   announcement_type: string;
+  video_call_rate: number;
+  audio_call_rate: number;
+  subscription_plans: SubscriptionPlan[];
 }
 
 const AdminSettingsPage = () => {
@@ -28,7 +40,12 @@ const AdminSettingsPage = () => {
       .select("*")
       .limit(1)
       .single();
-    if (!error && data) setSettings(data as unknown as AppSettings);
+    if (!error && data) {
+      setSettings({
+        ...data,
+        subscription_plans: (data.subscription_plans as unknown as SubscriptionPlan[]) || [],
+      } as AppSettings);
+    }
     setLoading(false);
   };
 
@@ -50,6 +67,9 @@ const AdminSettingsPage = () => {
           announcement_text: settings.announcement_text,
           announcement_active: settings.announcement_active,
           announcement_type: settings.announcement_type,
+          video_call_rate: settings.video_call_rate,
+          audio_call_rate: settings.audio_call_rate,
+          subscription_plans: settings.subscription_plans as unknown as any,
           updated_at: new Date().toISOString(),
           updated_by: user?.id,
         })
@@ -62,6 +82,56 @@ const AdminSettingsPage = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const updatePlan = (index: number, field: keyof SubscriptionPlan, value: any) => {
+    if (!settings) return;
+    const plans = [...settings.subscription_plans];
+    plans[index] = { ...plans[index], [field]: value };
+    setSettings({ ...settings, subscription_plans: plans });
+  };
+
+  const updatePlanFeature = (planIndex: number, featureIndex: number, value: string) => {
+    if (!settings) return;
+    const plans = [...settings.subscription_plans];
+    const features = [...plans[planIndex].features];
+    features[featureIndex] = value;
+    plans[planIndex] = { ...plans[planIndex], features };
+    setSettings({ ...settings, subscription_plans: plans });
+  };
+
+  const addFeature = (planIndex: number) => {
+    if (!settings) return;
+    const plans = [...settings.subscription_plans];
+    plans[planIndex] = { ...plans[planIndex], features: [...plans[planIndex].features, ""] };
+    setSettings({ ...settings, subscription_plans: plans });
+  };
+
+  const removeFeature = (planIndex: number, featureIndex: number) => {
+    if (!settings) return;
+    const plans = [...settings.subscription_plans];
+    const features = plans[planIndex].features.filter((_, i) => i !== featureIndex);
+    plans[planIndex] = { ...plans[planIndex], features };
+    setSettings({ ...settings, subscription_plans: plans });
+  };
+
+  const addPlan = () => {
+    if (!settings) return;
+    setSettings({
+      ...settings,
+      subscription_plans: [
+        ...settings.subscription_plans,
+        { name: "New Plan", price: "₹0", amount: 0, period: "/month", popular: false, features: ["Feature 1"] },
+      ],
+    });
+  };
+
+  const removePlan = (index: number) => {
+    if (!settings) return;
+    setSettings({
+      ...settings,
+      subscription_plans: settings.subscription_plans.filter((_, i) => i !== index),
+    });
   };
 
   if (loading) {
@@ -78,6 +148,132 @@ const AdminSettingsPage = () => {
 
   return (
     <div className="space-y-6 max-w-2xl">
+      {/* Call Rates */}
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+            <Phone className="w-5 h-5 text-blue-500" />
+          </div>
+          <div>
+            <h2 className="text-lg font-extrabold text-foreground">Call Rates</h2>
+            <p className="text-xs text-muted-foreground">Video aur Audio call ki per-minute rate set karo (₹/min)</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <Video size={14} className="text-primary" /> Video Call Rate
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
+              <Input
+                type="number"
+                value={settings.video_call_rate}
+                onChange={(e) => setSettings({ ...settings, video_call_rate: parseInt(e.target.value) || 0 })}
+                className="h-12 rounded-xl pl-7"
+                min={0}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">/min</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <Phone size={14} className="text-green-500" /> Audio Call Rate
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
+              <Input
+                type="number"
+                value={settings.audio_call_rate}
+                onChange={(e) => setSettings({ ...settings, audio_call_rate: parseInt(e.target.value) || 0 })}
+                className="h-12 rounded-xl pl-7"
+                min={0}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">/min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Subscription Plans */}
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-extrabold text-foreground">Subscription Plans</h2>
+              <p className="text-xs text-muted-foreground">Premium plans ki price aur features edit karo</p>
+            </div>
+          </div>
+          <Button variant="outline" size="sm" onClick={addPlan} className="gap-1 rounded-xl">
+            <Plus size={14} /> Add Plan
+          </Button>
+        </div>
+
+        {settings.subscription_plans.map((plan, planIndex) => (
+          <div key={planIndex} className="bg-muted/40 rounded-xl p-4 space-y-3 relative">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={plan.name}
+                  onChange={(e) => updatePlan(planIndex, "name", e.target.value)}
+                  className="h-9 rounded-lg w-32 font-bold"
+                  placeholder="Plan name"
+                />
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+                  <Switch
+                    checked={plan.popular}
+                    onCheckedChange={(v) => updatePlan(planIndex, "popular", v)}
+                  />
+                  Popular
+                </label>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => removePlan(planIndex)} className="text-destructive hover:text-destructive h-8 w-8">
+                <Trash2 size={14} />
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Price Display</label>
+                <Input value={plan.price} onChange={(e) => updatePlan(planIndex, "price", e.target.value)} className="h-9 rounded-lg text-sm" placeholder="₹99" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Amount (₹)</label>
+                <Input type="number" value={plan.amount} onChange={(e) => updatePlan(planIndex, "amount", parseInt(e.target.value) || 0)} className="h-9 rounded-lg text-sm" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Period</label>
+                <Input value={plan.period} onChange={(e) => updatePlan(planIndex, "period", e.target.value)} className="h-9 rounded-lg text-sm" placeholder="/month" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-foreground">Features</label>
+              {plan.features.map((feature, fIndex) => (
+                <div key={fIndex} className="flex gap-1.5">
+                  <Input
+                    value={feature}
+                    onChange={(e) => updatePlanFeature(planIndex, fIndex, e.target.value)}
+                    className="h-8 rounded-lg text-xs flex-1"
+                    placeholder="Feature..."
+                  />
+                  <Button variant="ghost" size="icon" onClick={() => removeFeature(planIndex, fIndex)} className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0">
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+              ))}
+              <Button variant="ghost" size="sm" onClick={() => addFeature(planIndex)} className="text-xs gap-1 h-7 text-primary">
+                <Plus size={12} /> Add Feature
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Maintenance Mode */}
       <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
         <div className="flex items-center gap-3">

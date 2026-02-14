@@ -1,33 +1,23 @@
 import { ArrowLeft, Crown, Check, Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const plans = [
-  {
-    name: "Weekly",
-    price: "₹99",
-    amount: 99,
-    period: "/week",
-    features: ["Unlimited likes", "See who liked you", "Priority matching"],
-  },
-  {
-    name: "Monthly",
-    price: "₹299",
-    amount: 299,
-    period: "/month",
-    popular: true,
-    features: ["All Weekly features", "Super likes x5", "Profile boost", "Read receipts"],
-  },
-  {
-    name: "Yearly",
-    price: "₹1,999",
-    amount: 1999,
-    period: "/year",
-    features: ["All Monthly features", "VIP badge", "Advanced filters", "Undo swipes"],
-  },
+interface Plan {
+  name: string;
+  price: string;
+  amount: number;
+  period: string;
+  popular?: boolean;
+  features: string[];
+}
+
+const fallbackPlans: Plan[] = [
+  { name: "Weekly", price: "₹99", amount: 99, period: "/week", features: ["Unlimited likes", "See who liked you", "Priority matching"] },
+  { name: "Monthly", price: "₹299", amount: 299, period: "/month", popular: true, features: ["All Weekly features", "Super likes x5", "Profile boost", "Read receipts"] },
+  { name: "Yearly", price: "₹1,999", amount: 1999, period: "/year", features: ["All Monthly features", "VIP badge", "Advanced filters", "Undo swipes"] },
 ];
 
 const loadRazorpayScript = (): Promise<boolean> => {
@@ -48,8 +38,19 @@ const PremiumPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [plans, setPlans] = useState<Plan[]>(fallbackPlans);
 
-  const handlePayment = async (plan: typeof plans[0]) => {
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const { data } = await supabase.from("app_settings").select("subscription_plans").limit(1).single();
+      if (data?.subscription_plans) {
+        setPlans(data.subscription_plans as unknown as Plan[]);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  const handlePayment = async (plan: Plan) => {
     setLoadingPlan(plan.name);
     try {
       const loaded = await loadRazorpayScript();

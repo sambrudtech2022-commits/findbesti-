@@ -19,34 +19,43 @@ export type Database = {
           announcement_active: boolean
           announcement_text: string | null
           announcement_type: string
+          audio_call_rate: number
           id: string
           maintenance_message: string | null
           maintenance_mode: boolean
           min_app_version: string | null
+          subscription_plans: Json
           updated_at: string
           updated_by: string | null
+          video_call_rate: number
         }
         Insert: {
           announcement_active?: boolean
           announcement_text?: string | null
           announcement_type?: string
+          audio_call_rate?: number
           id?: string
           maintenance_message?: string | null
           maintenance_mode?: boolean
           min_app_version?: string | null
+          subscription_plans?: Json
           updated_at?: string
           updated_by?: string | null
+          video_call_rate?: number
         }
         Update: {
           announcement_active?: boolean
           announcement_text?: string | null
           announcement_type?: string
+          audio_call_rate?: number
           id?: string
           maintenance_message?: string | null
           maintenance_mode?: boolean
           min_app_version?: string | null
+          subscription_plans?: Json
           updated_at?: string
           updated_by?: string | null
+          video_call_rate?: number
         }
         Relationships: []
       }
