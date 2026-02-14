@@ -29,7 +29,7 @@ const FavoritesPage = () => {
 
       <div className="grid grid-cols-2 gap-3 p-4">
         {favorites.map((fav) => (
-          <div key={fav.id} className="relative rounded-2xl overflow-hidden bg-card shadow-md">
+          <div key={fav.id} className="relative rounded-2xl overflow-hidden bg-card shadow-md cursor-pointer active:scale-[0.97] transition-transform" onClick={() => navigate(`/video-call/${fav.id}`)}>
             <img src={fav.img} alt={fav.name} className="w-full h-44 object-cover" />
             <div className="absolute top-2 right-2">
               <Heart size={20} className="text-primary fill-primary" />

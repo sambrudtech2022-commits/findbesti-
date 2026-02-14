@@ -13,7 +13,13 @@ const tabs = [
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  const filteredUsers = searchQuery
+    ? mockUsers.filter((u) => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.country.toLowerCase().includes(searchQuery.toLowerCase()))
+    : mockUsers;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -24,7 +30,14 @@ const HomePage = () => {
             <h1 className="text-2xl font-extrabold">
               <span className="text-gradient">FIND BESTI 💫</span>
             </h1>
-            <button className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200">
+            <button
+              onClick={() => {
+                const searchInput = document.getElementById("home-search");
+                if (searchInput) searchInput.focus();
+                setShowSearch(!showSearch);
+              }}
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200"
+            >
               <Search size={18} className="text-muted-foreground" />
             </button>
           </div>
@@ -72,10 +85,28 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* Search Bar */}
+      {showSearch && (
+        <div className="px-4 mb-3 animate-slide-up">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              id="home-search"
+              autoFocus
+              type="text"
+              placeholder="Search by name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-muted rounded-xl pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+        </div>
+      )}
+
       {/* User Grid */}
       <div className="px-4">
         <div className="grid grid-cols-2 gap-3">
-          {mockUsers.map((user, index) =>
+          {filteredUsers.map((user, index) =>
           <div
             key={user.id}
             className="animate-stagger-in"
