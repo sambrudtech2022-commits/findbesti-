@@ -26,6 +26,7 @@ export const useAgoraCall = ({ channelName, callType }: UseAgoraCallOptions) => 
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [remoteUsers, setRemoteUsers] = useState<IAgoraRTCRemoteUser[]>([]);
   const [callTime, setCallTime] = useState(0);
+  const [isFrontCamera, setIsFrontCamera] = useState(true);
 
   // Timer
   useEffect(() => {
@@ -123,6 +124,18 @@ export const useAgoraCall = ({ channelName, callType }: UseAgoraCallOptions) => 
     }
   }, [isCameraOff]);
 
+  const switchCamera = useCallback(async () => {
+    if (localVideoTrackRef.current) {
+      try {
+        const currentFacingMode = isFrontCamera ? "environment" : "user";
+        await localVideoTrackRef.current.setDevice({ facingMode: currentFacingMode } as any);
+        setIsFrontCamera(!isFrontCamera);
+      } catch (err) {
+        console.error("Switch camera error:", err);
+      }
+    }
+  }, [isFrontCamera]);
+
   // Auto-join on mount
   useEffect(() => {
     join();
@@ -148,6 +161,7 @@ export const useAgoraCall = ({ channelName, callType }: UseAgoraCallOptions) => 
     formatTime,
     toggleMute,
     toggleCamera,
+    switchCamera,
     leave,
     localVideoTrack: localVideoTrackRef.current,
   };

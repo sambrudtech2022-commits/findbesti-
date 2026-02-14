@@ -24,6 +24,7 @@ const VideoCallPage = () => {
     formatTime,
     toggleMute,
     toggleCamera,
+    switchCamera,
     leave,
     localVideoTrack,
   } = useAgoraCall({ channelName, callType: "video" });
@@ -128,7 +129,7 @@ const VideoCallPage = () => {
             )}
           </button>
 
-          <button className="w-14 h-14 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center">
+          <button onClick={switchCamera} className="w-14 h-14 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center">
             <RotateCcw size={22} className="text-primary-foreground" />
           </button>
 
