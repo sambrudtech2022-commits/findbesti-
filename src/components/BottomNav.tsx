@@ -34,10 +34,6 @@ const BottomNav = () => {
             </button>
           );
         })}
-        <div className="flex flex-col items-center justify-center gap-0.5 w-16">
-          <NotificationBell />
-          <span className="text-[10px] font-medium text-muted-foreground">Alerts</span>
-        </div>
       </div>
     </nav>);
 
