@@ -56,10 +56,9 @@ export function useConversations() {
       c.user1_id === user.id ? c.user2_id : c.user1_id
     );
 
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("user_id, display_name, avatar_url")
-      .in("user_id", otherUserIds);
+    const { data: profiles } = await supabase.rpc("get_public_profiles");
+    // Filter to only other user IDs
+    const filteredProfiles = (profiles || []).filter((p: any) => otherUserIds.includes(p.user_id));
 
     // Get unread counts
     const { data: unreadData } = await supabase
@@ -74,7 +73,7 @@ export function useConversations() {
       unreadMap[m.conversation_id] = (unreadMap[m.conversation_id] || 0) + 1;
     });
 
-    const profileMap = new Map(profiles?.map((p) => [p.user_id, p]));
+    const profileMap = new Map(filteredProfiles?.map((p: any) => [p.user_id, p]));
 
     const enriched = data.map((c) => {
       const otherId = c.user1_id === user.id ? c.user2_id : c.user1_id;

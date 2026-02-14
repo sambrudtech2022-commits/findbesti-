@@ -43,11 +43,10 @@ const ChatPage = () => {
   const fetchAllUsers = async () => {
     if (!user) return;
     setLoadingUsers(true);
-    const { data } = await supabase
-      .from("profiles")
-      .select("user_id, display_name, avatar_url")
-      .neq("user_id", user.id);
-    setAllUsers(data || []);
+    const { data } = await supabase.rpc("get_public_profiles");
+    // Filter out current user
+    const filtered = (data || []).filter((p: any) => p.user_id !== user.id);
+    setAllUsers(filtered);
     setLoadingUsers(false);
   };
 
