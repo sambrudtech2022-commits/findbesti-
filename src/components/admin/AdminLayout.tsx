@@ -6,6 +6,7 @@ import {
   CreditCard,
   Bell,
   AlertTriangle,
+  Settings,
   ShoppingBag,
   LogOut,
   Shield,
@@ -25,6 +26,7 @@ const navItems = [
   { icon: ShoppingBag, label: "Purchases", path: "/admin/purchases" },
   { icon: ShieldCheck, label: "Manage Admins", path: "/admin/manage" },
   { icon: Bell, label: "Notifications", path: "/admin/notifications" },
+  { icon: Settings, label: "App Settings", path: "/admin/settings" },
 ];
 
 const AdminLayout = () => {

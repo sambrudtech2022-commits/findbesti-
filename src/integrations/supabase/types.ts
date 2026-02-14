@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          announcement_active: boolean
+          announcement_text: string | null
+          announcement_type: string
+          id: string
+          maintenance_message: string | null
+          maintenance_mode: boolean
+          min_app_version: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          announcement_active?: boolean
+          announcement_text?: string | null
+          announcement_type?: string
+          id?: string
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
+          min_app_version?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          announcement_active?: boolean
+          announcement_text?: string | null
+          announcement_type?: string
+          id?: string
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
+          min_app_version?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string

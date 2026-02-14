@@ -28,6 +28,9 @@ import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminPurchasesPage from "./pages/admin/AdminPurchasesPage";
 import AdminManagePage from "./pages/admin/AdminManagePage";
 import AdminNotificationsPage from "./pages/admin/AdminNotificationsPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import MaintenanceScreen from "./components/MaintenanceScreen";
+import AnnouncementBanner from "./components/AnnouncementBanner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 const queryClient = new QueryClient();
@@ -93,12 +96,15 @@ const App = () => (
               <Route path="purchases" element={<AdminPurchasesPage />} />
               <Route path="manage" element={<AdminManagePage />} />
               <Route path="notifications" element={<AdminNotificationsPage />} />
+              <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
 
             {/* App routes */}
             <Route path="/*" element={
-              <div className="max-w-lg mx-auto relative min-h-screen bg-background shadow-2xl">
-                <Routes>
+              <MaintenanceScreen>
+                <div className="max-w-lg mx-auto relative min-h-screen bg-background shadow-2xl">
+                  <AnnouncementBanner />
+                  <Routes>
                   <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
                   <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                   <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
@@ -116,6 +122,7 @@ const App = () => (
                 </Routes>
                 <BottomNav />
               </div>
+              </MaintenanceScreen>
             } />
           </Routes>
         </AuthProvider>
