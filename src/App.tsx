@@ -27,6 +27,7 @@ import AdminReportsPage from "./pages/admin/AdminReportsPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminPurchasesPage from "./pages/admin/AdminPurchasesPage";
 import AdminManagePage from "./pages/admin/AdminManagePage";
+import AdminNotificationsPage from "./pages/admin/AdminNotificationsPage";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 const queryClient = new QueryClient();
@@ -91,6 +92,7 @@ const App = () => (
               <Route path="reports" element={<AdminReportsPage />} />
               <Route path="purchases" element={<AdminPurchasesPage />} />
               <Route path="manage" element={<AdminManagePage />} />
+              <Route path="notifications" element={<AdminNotificationsPage />} />
             </Route>
 
             {/* App routes */}

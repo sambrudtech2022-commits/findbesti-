@@ -1,5 +1,6 @@
 import { Home, MessageCircle, Video, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import NotificationBell from "./NotificationBell";
 
 const tabs = [
 { icon: Home, label: "Home", path: "/" },
@@ -33,6 +34,10 @@ const BottomNav = () => {
             </button>
           );
         })}
+        <div className="flex flex-col items-center justify-center gap-0.5 w-16">
+          <NotificationBell />
+          <span className="text-[10px] font-medium text-muted-foreground">Alerts</span>
+        </div>
       </div>
     </nav>);
 

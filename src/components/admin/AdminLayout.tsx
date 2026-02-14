@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   CreditCard,
+  Bell,
   AlertTriangle,
   ShoppingBag,
   LogOut,
@@ -23,6 +24,7 @@ const navItems = [
   { icon: AlertTriangle, label: "Reports", path: "/admin/reports" },
   { icon: ShoppingBag, label: "Purchases", path: "/admin/purchases" },
   { icon: ShieldCheck, label: "Manage Admins", path: "/admin/manage" },
+  { icon: Bell, label: "Notifications", path: "/admin/notifications" },
 ];
 
 const AdminLayout = () => {
