@@ -21,12 +21,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify the Firebase ID token server-side using Google's Identity Toolkit API
     const firebaseApiKey = Deno.env.get("FIREBASE_API_KEY");
     if (!firebaseApiKey) {
       throw new Error("Firebase API key not configured");
     }
 
+    // Verify Firebase ID token
     const verifyRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseApiKey}`,
       {
@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
     );
 
     const verifyData = await verifyRes.json();
+    console.log("Firebase verify response:", JSON.stringify(verifyData));
 
     if (verifyData.error) {
       return new Response(
@@ -53,7 +54,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Extract phone from the VERIFIED Firebase token - never trust client-provided phone
     const phone = firebaseUser.phoneNumber;
     if (!phone) {
       return new Response(
@@ -63,38 +63,67 @@ Deno.serve(async (req) => {
     }
 
     const firebase_uid = firebaseUser.localId;
+    const email = `${phone.replace("+", "")}@phone.findbesti.app`;
+    const tempPassword = crypto.randomUUID();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Check if user exists with this phone
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find(
-      (u) => u.phone === phone || u.user_metadata?.phone === phone
-    );
+    // Try to sign in first (existing user)
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password: "dummy", // Will fail, but we check if user exists
+    });
 
     let session;
-    const email = `${phone.replace("+", "")}@phone.findbesti.app`;
-    const tempPassword = crypto.randomUUID();
+
+    // Check if user exists by trying to get by email
+    const { data: userList } = await supabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+
+    // Use getUserByEmail-like approach: search by generated email
+    let existingUser = null;
+    try {
+      // Try direct lookup - search users with the email
+      const { data: lookupData, error: lookupError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('phone', phone)
+        .maybeSingle();
+      
+      if (lookupData?.user_id) {
+        const { data: userData } = await supabase.auth.admin.getUserById(lookupData.user_id);
+        existingUser = userData?.user;
+      }
+    } catch (e) {
+      console.log("Profile lookup failed, will try to create user:", e);
+    }
 
     if (existingUser) {
+      console.log("Existing user found:", existingUser.id);
       await supabase.auth.admin.updateUserById(existingUser.id, {
         password: tempPassword,
         phone,
         user_metadata: { ...existingUser.user_metadata, firebase_uid },
       });
 
-      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: existingUser.email || email,
         password: tempPassword,
       });
 
-      if (loginError) throw loginError;
-      session = loginData.session;
+      if (signInError) {
+        console.error("Sign in error:", signInError);
+        throw signInError;
+      }
+      session = signInData.session;
     } else {
-      const { error: createError } = await supabase.auth.admin.createUser({
+      console.log("Creating new user with email:", email);
+      const { data: createData, error: createError } = await supabase.auth.admin.createUser({
         email,
         password: tempPassword,
         phone,
@@ -103,17 +132,41 @@ Deno.serve(async (req) => {
         user_metadata: { phone, display_name: "User", firebase_uid },
       });
 
-      if (createError) throw createError;
+      if (createError) {
+        // User might already exist with this email
+        console.error("Create user error:", createError);
+        // Try to update and login
+        if (createError.message?.includes("already been registered")) {
+          const { data: existingByEmail } = await supabase.auth.admin.listUsers({ page: 1, perPage: 50 });
+          const found = existingByEmail?.users?.find(u => u.email === email);
+          if (found) {
+            await supabase.auth.admin.updateUserById(found.id, { password: tempPassword });
+            const { data: retryLogin, error: retryError } = await supabase.auth.signInWithPassword({
+              email, password: tempPassword,
+            });
+            if (retryError) throw retryError;
+            session = retryLogin.session;
+          } else {
+            throw createError;
+          }
+        } else {
+          throw createError;
+        }
+      } else {
+        const { data: newLoginData, error: newLoginError } = await supabase.auth.signInWithPassword({
+          email,
+          password: tempPassword,
+        });
 
-      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-        email,
-        password: tempPassword,
-      });
-
-      if (loginError) throw loginError;
-      session = loginData.session;
+        if (newLoginError) {
+          console.error("New user login error:", newLoginError);
+          throw newLoginError;
+        }
+        session = newLoginData.session;
+      }
     }
 
+    console.log("Login successful, session created");
     return new Response(
       JSON.stringify({ success: true, session }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -121,7 +174,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("Verify OTP error:", error);
     return new Response(
-      JSON.stringify({ error: "Verification failed" }),
+      JSON.stringify({ error: error.message || "Verification failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
