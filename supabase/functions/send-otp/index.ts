@@ -46,9 +46,23 @@ Deno.serve(async (req) => {
     if (insertError) throw insertError;
 
     // Send SMS via Twilio
-    const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID")!;
-    const authToken = Deno.env.get("TWILIO_AUTH_TOKEN")!;
-    const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER")!;
+    const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+    const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+    const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
+
+    console.log("Secrets check:", {
+      hasAccountSid: !!accountSid,
+      hasAuthToken: !!authToken,
+      hasTwilioPhone: !!twilioPhone,
+      twilioPhoneValue: twilioPhone,
+    });
+
+    if (!accountSid || !authToken || !twilioPhone) {
+      return new Response(
+        JSON.stringify({ error: "Missing Twilio credentials. Please configure TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER secrets." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
 
