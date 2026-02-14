@@ -23,11 +23,6 @@ export const initFirebase = async (): Promise<Auth> => {
 };
 
 export const setupRecaptcha = (auth: Auth, buttonId: string): RecaptchaVerifier => {
-  // Clear any existing recaptcha from the container
-  const container = document.getElementById(buttonId);
-  if (container) {
-    container.innerHTML = "";
-  }
   const verifier = new RecaptchaVerifier(auth, buttonId, {
     size: "invisible",
     callback: () => {},
