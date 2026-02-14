@@ -42,12 +42,18 @@ const AuthPage = () => {
     const fullPhone = "+91" + phone;
     setLoading(true);
     try {
-      const auth = firebaseAuthRef.current || await initFirebase();
+    const auth = firebaseAuthRef.current || await initFirebase();
       
-      // Setup recaptcha
-      if (!recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current = setupRecaptcha(auth, "recaptcha-container");
+      // Always clear and recreate recaptcha to avoid "already rendered" error
+      if (recaptchaVerifierRef.current) {
+        try { recaptchaVerifierRef.current.clear(); } catch (_) {}
+        recaptchaVerifierRef.current = null;
       }
+      // Clear the container's innerHTML to remove any leftover recaptcha widgets
+      const container = document.getElementById("recaptcha-container");
+      if (container) container.innerHTML = "";
+      
+      recaptchaVerifierRef.current = setupRecaptcha(auth, "recaptcha-container");
 
       const confirmationResult = await sendFirebaseOtp(fullPhone, recaptchaVerifierRef.current);
       confirmationResultRef.current = confirmationResult;
