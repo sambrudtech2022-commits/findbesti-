@@ -1,6 +1,7 @@
 import { ArrowLeft, Bell, Shield, Eye, Moon, Globe, HelpCircle, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -54,15 +55,29 @@ const SettingsPage = () => {
             <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">{section.title}</h2>
             <div className="bg-card rounded-2xl border border-border/50 overflow-hidden divide-y divide-border/30">
               {section.items.map((item) => (
-                <div key={item.label} className="flex items-center gap-3 py-3.5 px-4">
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    if ("toggle" in item && item.toggle && item.onChange) {
+                      item.onChange(!item.value!);
+                    } else if (item.label === "Privacy Policy") {
+                      toast("Privacy Policy page coming soon!");
+                    } else if (item.label === "Help & Support") {
+                      toast("Help & Support page coming soon!");
+                    } else if (item.label === "Language") {
+                      toast("Language selection coming soon!");
+                    }
+                  }}
+                  className="w-full flex items-center gap-3 py-3.5 px-4 hover:bg-muted/30 transition-colors"
+                >
                   <item.icon size={18} className="text-muted-foreground" />
-                  <span className="flex-1 font-medium text-sm text-foreground">{item.label}</span>
+                  <span className="flex-1 font-medium text-sm text-foreground text-left">{item.label}</span>
                   {"toggle" in item && item.toggle ? (
                     <Toggle value={item.value!} onChange={item.onChange!} />
                   ) : (
                     "desc" in item && <span className="text-xs text-muted-foreground">{item.desc}</span>
                   )}
-                </div>
+                </button>
               ))}
             </div>
           </div>

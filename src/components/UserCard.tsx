@@ -58,7 +58,7 @@ const UserCard = ({ user }: UserCardProps) => {
             <h3 className="text-primary-foreground font-bold text-sm drop-shadow-md">{user.name}, {user.age}</h3>
             <p className="text-primary-foreground/70 text-[10px] drop-shadow">{user.country}</p>
           </div>
-          <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+          <div className="flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0 transition-all duration-300">
             <button
               onClick={(e) => {
                 e.stopPropagation();

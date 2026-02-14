@@ -91,7 +91,14 @@ const AudioCallPage = () => {
         </button>
 
         <button
-          className="w-16 h-16 rounded-full flex items-center justify-center bg-primary-foreground/20 backdrop-blur-sm"
+          onClick={() => {
+            // Toggle speaker (placeholder - actual implementation depends on Agora)
+            const audio = document.querySelectorAll("audio, video");
+            audio.forEach((el: any) => {
+              el.muted = !el.muted;
+            });
+          }}
+          className="w-16 h-16 rounded-full flex items-center justify-center bg-primary-foreground/20 backdrop-blur-sm active:scale-95 transition-transform"
         >
           <Volume2 size={24} className="text-primary-foreground" />
         </button>

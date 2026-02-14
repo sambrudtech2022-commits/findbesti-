@@ -31,7 +31,7 @@ const WhoLikedMePage = () => {
 
       <div className="grid grid-cols-2 gap-3 p-4">
         {likers.map((liker) => (
-          <div key={liker.id} className="relative rounded-2xl overflow-hidden bg-card shadow-md">
+          <div key={liker.id} className="relative rounded-2xl overflow-hidden bg-card shadow-md cursor-pointer active:scale-[0.97] transition-transform" onClick={() => liker.blur ? navigate("/premium") : navigate(`/video-call/${liker.id}`)}>
             <img
               src={liker.img}
               alt={liker.name}
