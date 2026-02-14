@@ -12,14 +12,57 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, firebase_uid } = await req.json();
+    const { firebase_id_token } = await req.json();
 
-    if (!phone || !firebase_uid) {
+    if (!firebase_id_token) {
       return new Response(
-        JSON.stringify({ error: "Phone and firebase_uid are required" }),
+        JSON.stringify({ error: "firebase_id_token is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Verify the Firebase ID token server-side using Google's Identity Toolkit API
+    const firebaseApiKey = Deno.env.get("FIREBASE_API_KEY");
+    if (!firebaseApiKey) {
+      throw new Error("Firebase API key not configured");
+    }
+
+    const verifyRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${firebaseApiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: firebase_id_token }),
+      }
+    );
+
+    const verifyData = await verifyRes.json();
+
+    if (verifyData.error) {
+      return new Response(
+        JSON.stringify({ error: "Invalid Firebase token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const firebaseUser = verifyData.users?.[0];
+    if (!firebaseUser) {
+      return new Response(
+        JSON.stringify({ error: "Firebase user not found" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Extract phone from the VERIFIED Firebase token - never trust client-provided phone
+    const phone = firebaseUser.phoneNumber;
+    if (!phone) {
+      return new Response(
+        JSON.stringify({ error: "No phone number associated with Firebase account" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const firebase_uid = firebaseUser.localId;
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -37,7 +80,6 @@ Deno.serve(async (req) => {
     const tempPassword = crypto.randomUUID();
 
     if (existingUser) {
-      // Update existing user and sign in
       await supabase.auth.admin.updateUserById(existingUser.id, {
         password: tempPassword,
         phone,
@@ -52,7 +94,6 @@ Deno.serve(async (req) => {
       if (loginError) throw loginError;
       session = loginData.session;
     } else {
-      // Create new user
       const { error: createError } = await supabase.auth.admin.createUser({
         email,
         password: tempPassword,
@@ -80,7 +121,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("Verify OTP error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Verification failed" }),
+      JSON.stringify({ error: "Verification failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

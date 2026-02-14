@@ -303,6 +303,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_task: { Args: { _task_id: string }; Returns: undefined }
+      get_public_profile: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          created_at: string
+          display_name: string
+          followers: number
+          following: number
+          gender: string
+          id: string
+          is_blocked: boolean
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      get_public_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          bio: string
+          created_at: string
+          display_name: string
+          followers: number
+          following: number
+          gender: string
+          id: string
+          is_blocked: boolean
+          updated_at: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

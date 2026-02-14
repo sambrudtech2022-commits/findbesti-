@@ -78,10 +78,12 @@ const AuthPage = () => {
       const result = await confirmationResultRef.current.confirm(otp);
       const firebaseUser = result.user;
 
+      // Get Firebase ID token for server-side verification
+      const idToken = await firebaseUser.getIdToken();
+
       // Now create/login Supabase session via edge function
-      const fullPhone = "+91" + phone;
       const res = await supabase.functions.invoke("verify-otp", {
-        body: { phone: fullPhone, firebase_uid: firebaseUser.uid },
+        body: { firebase_id_token: idToken },
       });
 
       if (res.error) throw new Error(res.error.message);

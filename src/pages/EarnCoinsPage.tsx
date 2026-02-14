@@ -60,15 +60,11 @@ const EarnCoinsPage = () => {
     }
     setTaskLoading(taskId);
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const { error } = await supabase.from("task_completions").insert({
-        user_id: user.id,
-        task_id: taskId,
-        coins_earned: taskCoins,
-        completed_date: today,
+      const { error } = await supabase.rpc("complete_task", {
+        _task_id: taskId,
       });
       if (error) {
-        if (error.code === "23505") {
+        if (error.message?.includes("duplicate") || error.code === "23505") {
           toast.error("यह task आज पहले ही complete हो चुका है!");
         } else {
           throw error;
