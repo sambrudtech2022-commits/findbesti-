@@ -14,22 +14,39 @@ Deno.serve(async (req) => {
   try {
     const { phone } = await req.json();
 
-    if (!phone || !/^\+91\d{10}$/.test(phone)) {
+    // Validate Indian mobile number (must start with 6-9)
+    if (!phone || !/^\+91[6-9]\d{9}$/.test(phone)) {
       return new Response(
-        JSON.stringify({ error: "Valid Indian phone number required (+91XXXXXXXXXX)" }),
+        JSON.stringify({ error: "Valid Indian mobile number required (+91XXXXXXXXXX)" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Generate 6-digit OTP
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min expiry
 
     // Store OTP in database
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Rate limiting: check for recent OTP requests (1 per 60 seconds)
+    const { data: recentOtps } = await supabase
+      .from("otp_codes")
+      .select("created_at")
+      .eq("phone", phone)
+      .gte("created_at", new Date(Date.now() - 60000).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (recentOtps && recentOtps.length > 0) {
+      return new Response(
+        JSON.stringify({ error: "Please wait 60 seconds before requesting another OTP" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Generate 6-digit OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min expiry
 
     // Invalidate previous OTPs for this phone
     await supabase
@@ -50,12 +67,6 @@ Deno.serve(async (req) => {
     const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
     const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
 
-    console.log("Secrets check:", {
-      hasAccountSid: !!accountSid,
-      hasAuthToken: !!authToken,
-      hasTwilioPhone: !!twilioPhone,
-      twilioPhoneValue: twilioPhone,
-    });
 
     if (!accountSid || !authToken || !twilioPhone) {
       return new Response(
