@@ -43,7 +43,7 @@ const HomePage = () => {
             <div className="flex items-center gap-2">
               {/* Wallet & Coins Bar */}
               <div
-                onClick={() => navigate("/earn-coins")}
+                onClick={() => navigate("/coin-pack")}
                 className="flex items-center bg-muted rounded-full px-3 py-1.5 gap-2 cursor-pointer hover:bg-muted/80 transition-all active:scale-95"
               >
                 <div className="flex items-center gap-1">
