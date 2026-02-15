@@ -8,12 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 const TASKS = [
-  { id: "watch_video", icon: Play, label: "Watch a Video", coins: 10, desc: "Watch a 30s ad", daily: true },
-  { id: "share_app", icon: Share2, label: "Share App", coins: 50, desc: "Share with a friend", daily: false },
-  { id: "invite_friends", icon: Users, label: "Invite Friends", coins: 100, desc: "Invite 3 friends", daily: false },
-  { id: "daily_login", icon: CheckCircle, label: "Daily Login", coins: 5, desc: "Login everyday", daily: true },
-  { id: "watch_ad", icon: Play, label: "Watch Ad", coins: 10, desc: "Watch another ad", daily: true },
-];
+{ id: "watch_video", icon: Play, label: "Watch a Video", coins: 10, desc: "Watch a 30s ad", daily: true },
+{ id: "share_app", icon: Share2, label: "Share App", coins: 50, desc: "Share with a friend", daily: false },
+{ id: "invite_friends", icon: Users, label: "Invite Friends", coins: 100, desc: "Invite 3 friends", daily: false },
+{ id: "daily_login", icon: CheckCircle, label: "Daily Login", coins: 5, desc: "Login everyday", daily: true },
+{ id: "watch_ad", icon: Play, label: "Watch Ad", coins: 10, desc: "Watch another ad", daily: true }];
+
 
 const EarnCoinsPage = () => {
   const navigate = useNavigate();
@@ -38,14 +38,14 @@ const EarnCoinsPage = () => {
   const fetchData = async () => {
     if (!user) return;
     setLoading(true);
-    
+
     const today = new Date().toISOString().split("T")[0];
 
     const [profileRes, completionsRes, withdrawalsRes] = await Promise.all([
-      supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle(),
-      supabase.from("task_completions").select("task_id").eq("user_id", user.id).eq("completed_date", today),
-      supabase.from("withdrawal_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
-    ]);
+    supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle(),
+    supabase.from("task_completions").select("task_id").eq("user_id", user.id).eq("completed_date", today),
+    supabase.from("withdrawal_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20)]
+    );
 
     if (profileRes.data) setCoins(profileRes.data.coins ?? 0);
     if (completionsRes.data) setCompletedTasks(completionsRes.data.map((t: any) => t.task_id));
@@ -61,7 +61,7 @@ const EarnCoinsPage = () => {
     setTaskLoading(taskId);
     try {
       const { error } = await supabase.rpc("complete_task", {
-        _task_id: taskId,
+        _task_id: taskId
       });
       if (error) {
         if (error.message?.includes("duplicate") || error.code === "23505") {
@@ -96,7 +96,7 @@ const EarnCoinsPage = () => {
       const { error } = await supabase.from("withdrawal_requests").insert({
         user_id: user.id,
         amount: coins,
-        upi_id: upiId,
+        upi_id: upiId
       });
       if (error) throw error;
       toast.success(`₹${coins} withdrawal request भेजा गया! UPI: ${upiId}`);
@@ -114,8 +114,8 @@ const EarnCoinsPage = () => {
     return (
       <div className="h-[100dvh] flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -126,7 +126,7 @@ const EarnCoinsPage = () => {
           <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-primary-foreground/10 flex items-center justify-center">
             <ArrowLeft size={18} className="text-primary-foreground" />
           </button>
-          <h1 className="text-xl font-extrabold text-primary-foreground">Earn Coins</h1>
+          <h1 className="text-xl font-extrabold text-primary-foreground">Pack Coins</h1>
         </div>
 
         {/* Balance Card */}
@@ -157,8 +157,8 @@ const EarnCoinsPage = () => {
         <div className="mt-3">
           <Button
             onClick={() => setShowWithdraw(!showWithdraw)}
-            className="w-full h-11 rounded-xl bg-accent text-accent-foreground font-bold text-sm gap-2 hover:bg-accent/90"
-          >
+            className="w-full h-11 rounded-xl bg-accent text-accent-foreground font-bold text-sm gap-2 hover:bg-accent/90">
+
             <Wallet size={16} />
             Withdraw
           </Button>
@@ -167,8 +167,8 @@ const EarnCoinsPage = () => {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        {showWithdraw && (
-          <div className="bg-card border border-border/50 rounded-2xl p-4 mb-4 space-y-3 animate-in slide-in-from-top-2">
+        {showWithdraw &&
+        <div className="bg-card border border-border/50 rounded-2xl p-4 mb-4 space-y-3 animate-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
               <Wallet size={16} className="text-primary" />
               <h3 className="font-bold text-sm text-foreground">UPI Withdrawal</h3>
@@ -177,18 +177,18 @@ const EarnCoinsPage = () => {
               Minimum withdrawal: <span className="font-bold text-foreground">100 coins (₹100)</span>
             </p>
             <Input
-              type="text"
-              placeholder="Enter UPI ID (e.g. name@upi)"
-              value={upiId}
-              onChange={(e) => setUpiId(e.target.value)}
-              className="h-10 rounded-xl text-sm border-border/60"
-            />
+            type="text"
+            placeholder="Enter UPI ID (e.g. name@upi)"
+            value={upiId}
+            onChange={(e) => setUpiId(e.target.value)}
+            className="h-10 rounded-xl text-sm border-border/60" />
+
             <div className="flex gap-2">
               <Button
-                onClick={handleWithdraw}
-                disabled={coins < 100 || withdrawLoading}
-                className="flex-1 h-10 rounded-xl gradient-primary text-primary-foreground font-bold text-sm"
-              >
+              onClick={handleWithdraw}
+              disabled={coins < 100 || withdrawLoading}
+              className="flex-1 h-10 rounded-xl gradient-primary text-primary-foreground font-bold text-sm">
+
                 {withdrawLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : `Withdraw ₹${rupees}`}
               </Button>
               <Button onClick={() => setShowWithdraw(false)} variant="outline" className="h-10 rounded-xl border-border/60 text-sm">
@@ -196,7 +196,7 @@ const EarnCoinsPage = () => {
               </Button>
             </div>
           </div>
-        )}
+        }
 
         <h2 className="font-bold text-foreground mb-3">Complete Tasks to Earn</h2>
         <div className="space-y-2">
@@ -209,15 +209,15 @@ const EarnCoinsPage = () => {
                 onClick={() => !isDone && !isLoading && handleCompleteTask(task.id, task.coins)}
                 disabled={isDone || isLoading}
                 className={`w-full flex items-center gap-3 py-3 px-3 rounded-xl transition-all ${
-                  isDone ? "bg-muted/30 opacity-60" : "bg-card hover:bg-muted/50 active:scale-[0.98]"
-                } border border-border/50`}
-              >
+                isDone ? "bg-muted/30 opacity-60" : "bg-card hover:bg-muted/50 active:scale-[0.98]"} border border-border/50`
+                }>
+
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDone ? "bg-online/10" : "bg-primary/10"}`}>
-                  {isLoading ? (
-                    <Loader2 size={18} className="text-primary animate-spin" />
-                  ) : (
-                    <task.icon size={18} className={isDone ? "text-online" : "text-primary"} />
-                  )}
+                  {isLoading ?
+                  <Loader2 size={18} className="text-primary animate-spin" /> :
+
+                  <task.icon size={18} className={isDone ? "text-online" : "text-primary"} />
+                  }
                 </div>
                 <div className="flex-1 text-left">
                   <h3 className="font-bold text-sm text-foreground">{task.label}</h3>
@@ -226,8 +226,8 @@ const EarnCoinsPage = () => {
                 <div className={`text-sm font-extrabold ${isDone ? "text-online" : "text-accent"}`}>
                   {isDone ? "✓ Done" : `+${task.coins}`}
                 </div>
-              </button>
-            );
+              </button>);
+
           })}
         </div>
 
@@ -238,20 +238,20 @@ const EarnCoinsPage = () => {
         </div>
 
         {/* Withdrawal History */}
-        {withdrawals.length > 0 && (
-          <div className="mt-5">
+        {withdrawals.length > 0 &&
+        <div className="mt-5">
             <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <Clock size={16} className="text-muted-foreground" />
               Withdrawal History
             </h2>
             <div className="space-y-2">
               {withdrawals.map((w) => {
-                const statusColor = w.status === "completed" ? "text-online" : w.status === "failed" ? "text-destructive" : "text-accent";
-                const statusBg = w.status === "completed" ? "bg-online/10" : w.status === "failed" ? "bg-destructive/10" : "bg-accent/10";
-                const date = new Date(w.created_at);
-                const dateStr = date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-                return (
-                  <div key={w.id} className="flex items-center gap-3 py-3 px-3 rounded-xl bg-card border border-border/50">
+              const statusColor = w.status === "completed" ? "text-online" : w.status === "failed" ? "text-destructive" : "text-accent";
+              const statusBg = w.status === "completed" ? "bg-online/10" : w.status === "failed" ? "bg-destructive/10" : "bg-accent/10";
+              const date = new Date(w.created_at);
+              const dateStr = date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+              return (
+                <div key={w.id} className="flex items-center gap-3 py-3 px-3 rounded-xl bg-card border border-border/50">
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${statusBg}`}>
                       <IndianRupee size={16} className={statusColor} />
                     </div>
@@ -267,15 +267,15 @@ const EarnCoinsPage = () => {
                         <p className="text-[10px] text-muted-foreground">{dateStr}</p>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  </div>);
+
+            })}
             </div>
           </div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EarnCoinsPage;
