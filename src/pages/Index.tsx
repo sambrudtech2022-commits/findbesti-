@@ -46,14 +46,14 @@ const HomePage = () => {
                 onClick={() => navigate("/earn-coins")}
                 className="flex items-center bg-card rounded-full px-2 py-1 gap-1.5 cursor-pointer hover:bg-card/90 transition-all active:scale-95 border border-border"
               >
-                <div className="flex items-center gap-0.5">
-                  <Wallet size={14} className="text-accent" />
-                  <span className="text-xs font-bold text-foreground">₹{coins}</span>
+                <div className="flex items-center gap-1">
+                  <Wallet size={18} className="text-accent" />
+                  <span className="text-sm font-bold text-foreground">₹{coins}</span>
                 </div>
-                <div className="w-px h-3.5 bg-border" />
-                <div className="flex items-center gap-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}>
-                  <Heart size={14} className="text-accent fill-accent" />
-                  <span className="text-xs font-bold text-foreground">{coins}</span>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}>
+                  <Heart size={18} className="text-accent fill-accent" />
+                  <span className="text-sm font-bold text-foreground">{coins}</span>
                 </div>
                 <div
                   onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}
