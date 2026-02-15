@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus, X } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
@@ -12,14 +12,60 @@ const tabs = [
 { label: "New", icon: Clock },
 { label: "Popular", icon: TrendingUp }];
 
+const allCountries = [
+  { name: "All", flag: "🌍" },
+  { name: "India", flag: "🇮🇳" },
+  { name: "USA", flag: "🇺🇸" },
+  { name: "UK", flag: "🇬🇧" },
+  { name: "Canada", flag: "🇨🇦" },
+  { name: "Australia", flag: "🇦🇺" },
+  { name: "Germany", flag: "🇩🇪" },
+  { name: "France", flag: "🇫🇷" },
+  { name: "Japan", flag: "🇯🇵" },
+  { name: "South Korea", flag: "🇰🇷" },
+  { name: "Brazil", flag: "🇧🇷" },
+  { name: "Mexico", flag: "🇲🇽" },
+  { name: "Russia", flag: "🇷🇺" },
+  { name: "China", flag: "🇨🇳" },
+  { name: "Pakistan", flag: "🇵🇰" },
+  { name: "Bangladesh", flag: "🇧🇩" },
+  { name: "Nepal", flag: "🇳🇵" },
+  { name: "Sri Lanka", flag: "🇱🇰" },
+  { name: "Indonesia", flag: "🇮🇩" },
+  { name: "Thailand", flag: "🇹🇭" },
+  { name: "Vietnam", flag: "🇻🇳" },
+  { name: "Philippines", flag: "🇵🇭" },
+  { name: "Malaysia", flag: "🇲🇾" },
+  { name: "Singapore", flag: "🇸🇬" },
+  { name: "UAE", flag: "🇦🇪" },
+  { name: "Saudi Arabia", flag: "🇸🇦" },
+  { name: "Turkey", flag: "🇹🇷" },
+  { name: "Italy", flag: "🇮🇹" },
+  { name: "Spain", flag: "🇪🇸" },
+  { name: "Netherlands", flag: "🇳🇱" },
+  { name: "South Africa", flag: "🇿🇦" },
+  { name: "Nigeria", flag: "🇳🇬" },
+  { name: "Egypt", flag: "🇪🇬" },
+  { name: "Argentina", flag: "🇦🇷" },
+  { name: "Colombia", flag: "🇨🇴" },
+  { name: "Sweden", flag: "🇸🇪" },
+  { name: "Norway", flag: "🇳🇴" },
+  { name: "Poland", flag: "🇵🇱" },
+  { name: "Ukraine", flag: "🇺🇦" },
+  { name: "Ireland", flag: "🇮🇪" },
+  { name: "New Zealand", flag: "🇳🇿" },
+];
+
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("All");
+  const [countrySearch, setCountrySearch] = useState("");
   const [coins, setCoins] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -27,8 +73,27 @@ const HomePage = () => {
       .then(({ data }) => { if (data) setCoins(data.coins ?? 0); });
   }, [user]);
 
-  const filteredUsers = searchQuery
-    ? mockUsers.filter((u) => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.country.toLowerCase().includes(searchQuery.toLowerCase()))
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowCountryPicker(false);
+      }
+    };
+    if (showCountryPicker) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showCountryPicker]);
+
+  const filteredCountries = countrySearch
+    ? allCountries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()))
+    : allCountries;
+
+  const selectedFlag = allCountries.find(c => c.name === selectedCountry)?.flag || "🌍";
+
+  const filteredUsers = selectedCountry !== "All"
+    ? mockUsers.filter((u) => {
+        const countryData = allCountries.find(c => c.name === selectedCountry);
+        return countryData ? u.country === countryData.flag : true;
+      })
     : mockUsers;
 
   return (
@@ -62,16 +127,57 @@ const HomePage = () => {
                   <Plus size={12} className="text-muted-foreground" />
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  const searchInput = document.getElementById("home-search");
-                  if (searchInput) searchInput.focus();
-                  setShowSearch(!showSearch);
-                }}
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200"
-              >
-                <Search size={18} className="text-muted-foreground" />
-              </button>
+              <div className="relative" ref={pickerRef}>
+                <button
+                  onClick={() => setShowCountryPicker(!showCountryPicker)}
+                  className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200 text-lg"
+                >
+                  {selectedFlag}
+                </button>
+
+                {/* Country Dropdown */}
+                {showCountryPicker && (
+                  <div className="absolute right-0 top-12 w-64 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-slide-up">
+                    <div className="p-3 border-b border-border">
+                      <div className="relative">
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search country..."
+                          value={countrySearch}
+                          onChange={(e) => setCountrySearch(e.target.value)}
+                          className="w-full bg-muted rounded-xl pl-9 pr-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      </div>
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {filteredCountries.map((country) => (
+                        <button
+                          key={country.name}
+                          onClick={() => {
+                            setSelectedCountry(country.name);
+                            setShowCountryPicker(false);
+                            setCountrySearch("");
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors ${
+                            selectedCountry === country.name ? "bg-primary/10 text-primary font-bold" : "text-foreground"
+                          }`}
+                        >
+                          <span className="text-lg">{country.flag}</span>
+                          <span>{country.name}</span>
+                          {selectedCountry === country.name && (
+                            <span className="ml-auto text-primary">✓</span>
+                          )}
+                        </button>
+                      ))}
+                      {filteredCountries.length === 0 && (
+                        <p className="text-center text-muted-foreground text-sm py-4">No country found</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -118,20 +224,15 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
-      {showSearch && (
+      {/* Selected Country Indicator */}
+      {selectedCountry !== "All" && (
         <div className="px-4 mb-3 animate-slide-up">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              id="home-search"
-              autoFocus
-              type="text"
-              placeholder="Search by name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-muted rounded-xl pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
+          <div className="flex items-center gap-2 bg-primary/10 rounded-xl px-3 py-2">
+            <span className="text-lg">{selectedFlag}</span>
+            <span className="text-sm font-medium text-primary">{selectedCountry}</span>
+            <button onClick={() => setSelectedCountry("All")} className="ml-auto">
+              <X size={16} className="text-muted-foreground" />
+            </button>
           </div>
         </div>
       )}
