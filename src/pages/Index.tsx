@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus } from "lucide-react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus, Video, Phone } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
@@ -41,26 +41,40 @@ const HomePage = () => {
               <span className="text-gradient">FIND BESTI 💫</span>
             </h1>
             <div className="flex items-center gap-2">
-              {/* Wallet & Coins Bar */}
-              <div
-                onClick={() => navigate("/earn-coins")}
-                className="flex items-center bg-muted rounded-full px-3 py-1.5 gap-2 cursor-pointer hover:bg-muted/80 transition-all active:scale-95"
-              >
-                <div className="flex items-center gap-1">
-                  <Wallet size={16} className="text-accent" />
-                  <span className="text-sm font-bold text-foreground">₹{coins}</span>
-                </div>
-                <div className="w-px h-4 bg-border" />
-                <div className="flex items-center gap-1">
-                  <Heart size={16} className="text-accent fill-accent" />
-                  <span className="text-sm font-bold text-foreground">0</span>
-                </div>
-                <div
-                  onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}
-                  className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center cursor-pointer hover:bg-muted-foreground/30"
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => navigate("/earn-coins")}
+                  className="flex items-center gap-1 bg-muted rounded-full px-2.5 py-1.5 hover:bg-muted/80 transition-all active:scale-95"
                 >
-                  <Plus size={12} className="text-muted-foreground" />
-                </div>
+                  <Wallet size={14} className="text-accent" />
+                  <span className="text-[11px] font-bold text-foreground">₹{coins}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+                    navigate(`/video-call/${randomUser.id}`);
+                  }}
+                  className="flex items-center gap-1 bg-muted rounded-full px-2.5 py-1.5 hover:bg-muted/80 transition-all active:scale-95"
+                >
+                  <Video size={14} className="text-primary" />
+                </button>
+                <button
+                  onClick={() => {
+                    const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+                    navigate(`/audio-call/${randomUser.id}`);
+                  }}
+                  className="flex items-center gap-1 bg-muted rounded-full px-2.5 py-1.5 hover:bg-muted/80 transition-all active:scale-95"
+                >
+                  <Phone size={14} className="text-primary" />
+                </button>
+                <button
+                  onClick={() => navigate("/coin-pack")}
+                  className="flex items-center gap-1 bg-accent/10 rounded-full px-2.5 py-1.5 hover:bg-accent/20 transition-all active:scale-95"
+                >
+                  <Plus size={14} className="text-accent" />
+                  <span className="text-[11px] font-bold text-accent">Add</span>
+                </button>
               </div>
               <button
                 onClick={() => {
