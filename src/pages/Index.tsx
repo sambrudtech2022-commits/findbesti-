@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const tabs = [
 { label: "Hot 🔥", icon: Flame },
@@ -15,7 +17,15 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [coins, setCoins] = useState(0);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => { if (data) setCoins(data.coins ?? 0); });
+  }, [user]);
 
   const filteredUsers = searchQuery
     ? mockUsers.filter((u) => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.country.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -30,16 +40,36 @@ const HomePage = () => {
             <h1 className="text-2xl font-extrabold">
               <span className="text-gradient">FIND BESTI 💫</span>
             </h1>
-            <button
-              onClick={() => {
-                const searchInput = document.getElementById("home-search");
-                if (searchInput) searchInput.focus();
-                setShowSearch(!showSearch);
-              }}
-              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200"
-            >
-              <Search size={18} className="text-muted-foreground" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Wallet & Coins Bar */}
+              <div
+                onClick={() => navigate("/earn-coins")}
+                className="flex items-center bg-muted rounded-full px-3 py-1.5 gap-2 cursor-pointer hover:bg-muted/80 transition-all active:scale-95"
+              >
+                <div className="flex items-center gap-1">
+                  <Wallet size={16} className="text-accent" />
+                  <span className="text-sm font-bold text-foreground">₹{coins}</span>
+                </div>
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1">
+                  <Heart size={16} className="text-accent fill-accent" />
+                  <span className="text-sm font-bold text-foreground">0</span>
+                </div>
+                <div className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center">
+                  <Plus size={12} className="text-muted-foreground" />
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  const searchInput = document.getElementById("home-search");
+                  if (searchInput) searchInput.focus();
+                  setShowSearch(!showSearch);
+                }}
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:scale-110 transition-transform duration-200"
+              >
+                <Search size={18} className="text-muted-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
