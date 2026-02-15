@@ -51,7 +51,7 @@ const HomePage = () => {
                   <span className="text-sm font-bold text-foreground">₹{coins}</span>
                 </div>
                 <div className="w-px h-4 bg-border" />
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}>
                   <Heart size={16} className="text-accent fill-accent" />
                   <span className="text-sm font-bold text-foreground">{coins}</span>
                 </div>
