@@ -1,41 +1,10 @@
 import { useState, useEffect } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus, Loader2, X } from "lucide-react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-
-const COIN_PACKS = [
-  { coins: 165000, price: 49999, save: "60%" },
-  { coins: 100000, price: 29999, save: "50%" },
-  { coins: 66000, price: 19999, save: "45%" },
-  { coins: 33000, price: 9999, save: "45%", popular: true },
-  { coins: 15000, price: 4999, save: "40%" },
-  { coins: 5500, price: 1999, save: "33%" },
-  { coins: 2500, price: 999, save: "30%" },
-  { coins: 1200, price: 499, save: "25%" },
-  { coins: 440, price: 199, save: "20%" },
-  { coins: 200, price: 99, save: "10%" },
-  { coins: 90, price: 49 },
-  { coins: 40, price: 25 },
-];
-
-const loadRazorpayScript = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 const tabs = [
 { label: "Hot 🔥", icon: Flame },
@@ -48,8 +17,6 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCoinPacks, setShowCoinPacks] = useState(false);
-  const [loadingPack, setLoadingPack] = useState<number | null>(null);
   const [coins, setCoins] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -59,45 +26,6 @@ const HomePage = () => {
     supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => { if (data) setCoins(data.coins ?? 0); });
   }, [user]);
-
-  const handleBuyPack = async (pack: typeof COIN_PACKS[0], index: number) => {
-    if (!user) { toast.error("पहले login करें"); return; }
-    setLoadingPack(index);
-    try {
-      const loaded = await loadRazorpayScript();
-      if (!loaded) { toast.error("Payment SDK load नहीं हुआ"); return; }
-      const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
-        body: { amount: pack.price, plan_name: `${pack.coins} Coins Pack` },
-      });
-      if (error || !data?.order_id) throw new Error(error?.message || "Order create नहीं हो पाया");
-      const options = {
-        key: data.key_id, amount: data.amount, currency: data.currency,
-        name: "Coin Pack", description: `${pack.coins.toLocaleString()} Coins`,
-        order_id: data.order_id, prefill: { email: user?.email || "" },
-        theme: { color: "#7c3aed" },
-        handler: async () => {
-          await supabase.from("purchases").insert({
-            user_id: user.id, plan_name: `${pack.coins} Coins Pack`,
-            amount: pack.price, status: "completed", payment_id: data.order_id,
-          });
-          const { data: profile } = await supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle();
-          const currentCoins = profile?.coins ?? 0;
-          await supabase.from("profiles").update({ coins: currentCoins + pack.coins }).eq("user_id", user.id);
-          setCoins(currentCoins + pack.coins);
-          toast.success(`🎉 ${pack.coins.toLocaleString()} coins added!`);
-          setShowCoinPacks(false);
-        },
-        modal: { ondismiss: () => toast.info("Payment cancelled") },
-      };
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on("payment.failed", () => toast.error("Payment failed. Try again."));
-      rzp.open();
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
-    } finally {
-      setLoadingPack(null);
-    }
-  };
 
   const filteredUsers = searchQuery
     ? mockUsers.filter((u) => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.country.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -128,7 +56,7 @@ const HomePage = () => {
                   <span className="text-sm font-bold text-foreground">{coins}</span>
                 </div>
                 <div
-                  onClick={(e) => { e.stopPropagation(); setShowCoinPacks(true); }}
+                  onClick={() => navigate("/coin-pack")}
                   className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center cursor-pointer hover:bg-muted-foreground/30"
                 >
                   <Plus size={12} className="text-muted-foreground" />
@@ -222,46 +150,7 @@ const HomePage = () => {
           )}
         </div>
       </div>
-
-      {/* Coin Packs Sheet */}
-      <Sheet open={showCoinPacks} onOpenChange={setShowCoinPacks}>
-        <SheetContent side="bottom" className="rounded-t-3xl max-h-[80vh] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="text-center text-lg font-extrabold">🪙 Coin Packs</SheetTitle>
-          </SheetHeader>
-          <div className="grid grid-cols-3 gap-2.5 mt-4 pb-4">
-            {COIN_PACKS.map((pack, i) => (
-              <button
-                key={i}
-                onClick={() => handleBuyPack(pack, i)}
-                disabled={loadingPack !== null}
-                className="relative bg-muted rounded-2xl p-3 flex flex-col items-center gap-1 border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-60"
-              >
-                {pack.popular && (
-                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground text-[9px] font-extrabold px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                    POPULAR
-                  </span>
-                )}
-                <div className="text-2xl mt-1">🪙</div>
-                {loadingPack === i ? (
-                  <Loader2 size={20} className="animate-spin text-primary my-2" />
-                ) : (
-                  <>
-                    <p className="text-lg font-extrabold text-foreground leading-tight">{pack.coins.toLocaleString()}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Coins</p>
-                    {pack.save && (
-                      <span className="bg-primary/15 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full">Save {pack.save}</span>
-                    )}
-                    <p className="text-sm font-extrabold text-primary mt-0.5">₹{pack.price.toLocaleString()}</p>
-                  </>
-                )}
-              </button>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>);
-
 
 };
 
