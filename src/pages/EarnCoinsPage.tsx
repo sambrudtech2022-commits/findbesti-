@@ -154,13 +154,22 @@ const EarnCoinsPage = () => {
           </div>
         </div>
 
-        <Button
-          onClick={() => setShowWithdraw(!showWithdraw)}
-          className="w-full mt-3 h-11 rounded-xl bg-accent text-accent-foreground font-bold text-sm gap-2 hover:bg-accent/90"
-        >
-          <Wallet size={16} />
-          Withdraw to UPI
-        </Button>
+        <div className="flex gap-2 mt-3">
+          <Button
+            onClick={() => navigate("/coin-pack")}
+            className="flex-1 h-11 rounded-xl bg-primary-foreground text-primary font-bold text-sm gap-2 hover:bg-primary-foreground/90"
+          >
+            <Gift size={16} />
+            Buy Coins
+          </Button>
+          <Button
+            onClick={() => setShowWithdraw(!showWithdraw)}
+            className="flex-1 h-11 rounded-xl bg-accent text-accent-foreground font-bold text-sm gap-2 hover:bg-accent/90"
+          >
+            <Wallet size={16} />
+            Withdraw
+          </Button>
+        </div>
       </div>
 
       {/* Scrollable Content */}
