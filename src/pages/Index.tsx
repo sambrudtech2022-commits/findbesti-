@@ -106,27 +106,12 @@ const HomePage = () => {
               <span className="text-gradient">FIND BESTI 💫</span>
             </h1>
             <div className="flex items-center gap-2">
-              {/* Wallet & Coins Bar */}
-              <div
-                onClick={() => navigate("/earn-coins")}
-                className="flex items-center bg-card rounded-full px-2 py-1 gap-1.5 cursor-pointer hover:bg-card/90 transition-all active:scale-95 border border-border"
+              <button
+                onClick={() => navigate("/coin-pack")}
+                className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center hover:scale-110 transition-transform duration-200 active:scale-95"
               >
-                <div className="flex items-center gap-1">
-                  <Wallet size={18} className="text-accent" />
-                  <span className="text-sm font-bold text-foreground">₹{coins}</span>
-                </div>
-                <div className="w-px h-4 bg-border" />
-                <div className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}>
-                  <Heart size={18} className="text-accent fill-accent" />
-                  <span className="text-sm font-bold text-foreground">{coins}</span>
-                </div>
-                <div
-                  onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}
-                  className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center cursor-pointer hover:bg-muted-foreground/30"
-                >
-                  <Plus size={12} className="text-muted-foreground" />
-                </div>
-              </div>
+                <Wallet size={20} className="text-accent-foreground" />
+              </button>
               <div className="relative" ref={pickerRef}>
                 <button
                   onClick={() => setShowCountryPicker(!showCountryPicker)}
