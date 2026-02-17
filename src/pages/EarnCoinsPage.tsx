@@ -93,13 +93,17 @@ const EarnCoinsPage = () => {
     }
     setWithdrawLoading(true);
     try {
-      const { error } = await supabase.from("withdrawal_requests").insert({
-        user_id: user.id,
-        amount: coins,
-        upi_id: upiId
+      const { data, error } = await supabase.functions.invoke("process-withdrawal", {
+        body: { upi_id: upiId, amount: coins },
       });
       if (error) throw error;
-      toast.success(`₹${coins} withdrawal request भेजा गया! UPI: ${upiId}`);
+      if (data?.error) throw new Error(data.error);
+      
+      if (data?.status === 'completed') {
+        toast.success(`₹${coins} आपके UPI ${upiId} पर भेज दिया गया! 🎉`);
+      } else {
+        toast.success(data?.message || `₹${coins} withdrawal request भेजा गया!`);
+      }
       setShowWithdraw(false);
       setUpiId("");
       fetchData();
@@ -233,7 +237,7 @@ const EarnCoinsPage = () => {
 
         <div className="mt-4 bg-muted/30 rounded-xl p-3 border border-border/30">
           <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-            Coins 24-48 hours में आपके UPI account में transfer हो जाएंगे। Minimum withdrawal ₹100 है।
+            Coins turant आपके UPI account में transfer हो जाएंगे। Minimum withdrawal ₹100 है।
           </p>
         </div>
 
