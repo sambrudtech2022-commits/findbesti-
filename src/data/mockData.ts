@@ -19,17 +19,17 @@ export interface UserProfile {
 
 export const mockUsers: UserProfile[] = [
   { id: "1", name: "Priya", age: 22, avatar: avatar1, isOnline: true, isLive: true, country: "🇮🇳", language: "Hindi" },
-  { id: "2", name: "Ananya", age: 24, avatar: avatar2, isOnline: true, isLive: false, country: "🇮🇳", language: "English" },
+  { id: "2", name: "Emily", age: 24, avatar: avatar2, isOnline: true, isLive: false, country: "🇺🇸", language: "English" },
   { id: "3", name: "Meera", age: 21, avatar: avatar3, isOnline: true, isLive: true, country: "🇮🇳", language: "Hindi" },
-  { id: "4", name: "Kavya", age: 23, avatar: avatar4, isOnline: false, isLive: false, country: "🇮🇳", language: "Tamil" },
-  { id: "5", name: "Riya", age: 25, avatar: avatar6, isOnline: true, isLive: false, country: "🇮🇳", language: "Bengali" },
+  { id: "4", name: "Sophie", age: 23, avatar: avatar4, isOnline: false, isLive: false, country: "🇬🇧", language: "English" },
+  { id: "5", name: "Sakura", age: 25, avatar: avatar6, isOnline: true, isLive: false, country: "🇯🇵", language: "Japanese" },
   { id: "6", name: "Sneha", age: 22, avatar: avatar7, isOnline: true, isLive: true, country: "🇮🇳", language: "Hindi" },
-  { id: "7", name: "Divya", age: 20, avatar: avatar8, isOnline: true, isLive: false, country: "🇮🇳", language: "English" },
-  { id: "8", name: "Neha", age: 24, avatar: avatar1, isOnline: false, isLive: false, country: "🇮🇳", language: "Marathi" },
-  { id: "9", name: "Simran", age: 23, avatar: avatar3, isOnline: true, isLive: true, country: "🇮🇳", language: "Punjabi" },
-  { id: "10", name: "Aisha", age: 21, avatar: avatar6, isOnline: true, isLive: false, country: "🇮🇳", language: "Urdu" },
-  { id: "11", name: "Tanvi", age: 22, avatar: avatar7, isOnline: true, isLive: true, country: "🇮🇳", language: "Hindi" },
-  { id: "12", name: "Pooja", age: 25, avatar: avatar8, isOnline: false, isLive: false, country: "🇮🇳", language: "Gujarati" },
+  { id: "7", name: "Maria", age: 20, avatar: avatar8, isOnline: true, isLive: false, country: "🇧🇷", language: "Portuguese" },
+  { id: "8", name: "Fatima", age: 24, avatar: avatar1, isOnline: false, isLive: false, country: "🇦🇪", language: "Arabic" },
+  { id: "9", name: "Ji-yeon", age: 23, avatar: avatar3, isOnline: true, isLive: true, country: "🇰🇷", language: "Korean" },
+  { id: "10", name: "Aisha", age: 21, avatar: avatar6, isOnline: true, isLive: false, country: "🇵🇰", language: "Urdu" },
+  { id: "11", name: "Emma", age: 22, avatar: avatar7, isOnline: true, isLive: true, country: "🇦🇺", language: "English" },
+  { id: "12", name: "Ananya", age: 25, avatar: avatar8, isOnline: false, isLive: false, country: "🇮🇳", language: "Tamil" },
 ];
 
 export interface ChatMessage {
