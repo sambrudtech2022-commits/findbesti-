@@ -86,6 +86,42 @@ export type Database = {
         }
         Relationships: []
       }
+      gift_transactions: {
+        Row: {
+          channel_name: string | null
+          coins_spent: number
+          created_at: string
+          gift_emoji: string
+          gift_id: string
+          gift_name: string
+          id: string
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          channel_name?: string | null
+          coins_spent: number
+          created_at?: string
+          gift_emoji: string
+          gift_id: string
+          gift_name: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          channel_name?: string | null
+          coins_spent?: number
+          created_at?: string
+          gift_emoji?: string
+          gift_id?: string
+          gift_name?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
