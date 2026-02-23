@@ -24,7 +24,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnon = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Get the user from the auth token
     const userClient = createClient(supabaseUrl, supabaseAnon, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -52,10 +51,9 @@ serve(async (req) => {
       });
     }
 
-    // Use service role for DB operations
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check user's coin balance
+    // Check coin balance
     const { data: profile, error: profileError } = await adminClient
       .from('profiles')
       .select('coins')
@@ -76,7 +74,7 @@ serve(async (req) => {
       });
     }
 
-    // Insert withdrawal request as pending first
+    // Insert withdrawal request
     const { data: withdrawal, error: insertError } = await adminClient
       .from('withdrawal_requests')
       .insert({
@@ -96,18 +94,18 @@ serve(async (req) => {
       });
     }
 
-    // Deduct coins from user's balance
+    // Deduct coins
     await adminClient
       .from('profiles')
       .update({ coins: (profile.coins ?? 0) - amount })
       .eq('user_id', user.id);
 
-    // Now process payout via Razorpay Payouts (RazorpayX)
-    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID');
-    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET');
+    // Check for Cashfree Payouts credentials
+    const CASHFREE_CLIENT_ID = Deno.env.get('CASHFREE_CLIENT_ID');
+    const CASHFREE_CLIENT_SECRET = Deno.env.get('CASHFREE_CLIENT_SECRET');
 
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-      // If Razorpay not configured, mark as pending for manual processing
+    if (!CASHFREE_CLIENT_ID || !CASHFREE_CLIENT_SECRET) {
+      // No Cashfree keys — mark as pending for manual admin approval
       await adminClient
         .from('withdrawal_requests')
         .update({ status: 'pending' })
@@ -116,121 +114,101 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         success: true,
         status: 'pending',
-        message: 'Withdrawal request submitted. Will be processed manually.',
+        message: 'Withdrawal request submitted. Admin will process it manually.',
         withdrawal_id: withdrawal.id,
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const credentials = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
+    // --- Cashfree Payouts V2 Flow ---
+    const cfBaseUrl = 'https://payout-api.cashfree.com/payout/v2';
 
-    // Step 1: Create a Contact
-    const contactRes = await fetch('https://api.razorpay.com/v1/contacts', {
+    // Step 1: Get auth token
+    const tokenRes = await fetch(`${cfBaseUrl}/authorize`, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${credentials}`,
+        'X-Client-Id': CASHFREE_CLIENT_ID,
+        'X-Client-Secret': CASHFREE_CLIENT_SECRET,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: `User_${user.id.substring(0, 8)}`,
-        type: 'customer',
-        reference_id: user.id,
-      }),
     });
-    const contactData = await contactRes.json();
-    
-    if (!contactRes.ok) {
-      console.error('Contact creation failed:', contactData);
-      await adminClient
-        .from('withdrawal_requests')
-        .update({ status: 'failed' })
-        .eq('id', withdrawal.id);
-      // Refund coins
-      await adminClient
-        .from('profiles')
-        .update({ coins: (profile.coins ?? 0) })
-        .eq('user_id', user.id);
+    const tokenData = await tokenRes.json();
 
-      return new Response(JSON.stringify({ error: 'Payout setup failed. Coins refunded.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!tokenRes.ok || tokenData.subCode !== '200') {
+      console.error('Cashfree auth failed:', tokenData);
+      await adminClient.from('withdrawal_requests').update({ status: 'pending' }).eq('id', withdrawal.id);
+      return new Response(JSON.stringify({
+        success: true,
+        status: 'pending',
+        message: 'Payout gateway auth failed. Request saved for manual processing.',
+        withdrawal_id: withdrawal.id,
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Step 2: Create a Fund Account (UPI)
-    const fundRes = await fetch('https://api.razorpay.com/v1/fund_accounts', {
+    const cfToken = tokenData.data?.token;
+    const beneId = `bene_${user.id.replace(/-/g, '').substring(0, 16)}`;
+
+    // Step 2: Add beneficiary (ignore if already exists)
+    const beneRes = await fetch(`${cfBaseUrl}/beneficiary`, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${credentials}`,
+        'Authorization': `Bearer ${cfToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contact_id: contactData.id,
-        account_type: 'vpa',
-        vpa: { address: upi_id },
+        beneficiaryId: beneId,
+        beneficiaryName: `User_${user.id.substring(0, 8)}`,
+        transferMode: 'upi',
+        beneficiaryVpa: upi_id,
       }),
     });
-    const fundData = await fundRes.json();
 
-    if (!fundRes.ok) {
-      console.error('Fund account creation failed:', fundData);
-      await adminClient
-        .from('withdrawal_requests')
-        .update({ status: 'failed' })
-        .eq('id', withdrawal.id);
-      await adminClient
-        .from('profiles')
-        .update({ coins: (profile.coins ?? 0) })
-        .eq('user_id', user.id);
-
-      return new Response(JSON.stringify({ error: 'Invalid UPI ID or payout setup failed. Coins refunded.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!beneRes.ok) {
+      const beneData = await beneRes.json();
+      // Ignore "already exists" error
+      if (beneData.subCode !== '409') {
+        console.error('Beneficiary creation failed:', beneData);
+        await adminClient.from('withdrawal_requests').update({ status: 'failed' }).eq('id', withdrawal.id);
+        await adminClient.from('profiles').update({ coins: profile.coins ?? 0 }).eq('user_id', user.id);
+        return new Response(JSON.stringify({ error: 'Invalid UPI ID or payout setup failed. Coins refunded.' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
-    // Step 3: Create Payout
-    const payoutRes = await fetch('https://api.razorpay.com/v1/payouts', {
+    // Step 3: Initiate transfer
+    const transferId = `txn_${withdrawal.id.replace(/-/g, '').substring(0, 20)}`;
+    const transferRes = await fetch(`${cfBaseUrl}/transfer`, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${credentials}`,
+        'Authorization': `Bearer ${cfToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        account_number: Deno.env.get('RAZORPAY_ACCOUNT_NUMBER') || '',
-        fund_account_id: fundData.id,
-        amount: amount * 100, // paise
-        currency: 'INR',
-        mode: 'UPI',
-        purpose: 'payout',
-        queue_if_low_balance: true,
-        reference_id: withdrawal.id,
-        narration: 'FindBesti Withdrawal',
+        transferId,
+        transferAmount: amount,
+        transferMode: 'upi',
+        beneficiaryId: beneId,
+        remarks: 'FindBesti Withdrawal',
       }),
     });
-    const payoutData = await payoutRes.json();
+    const transferData = await transferRes.json();
 
-    if (!payoutRes.ok) {
-      console.error('Payout failed:', payoutData);
-      await adminClient
-        .from('withdrawal_requests')
-        .update({ status: 'failed' })
-        .eq('id', withdrawal.id);
-      await adminClient
-        .from('profiles')
-        .update({ coins: (profile.coins ?? 0) })
-        .eq('user_id', user.id);
-
-      return new Response(JSON.stringify({ 
-        error: payoutData?.error?.description || 'Payout failed. Coins refunded.',
+    if (!transferRes.ok) {
+      console.error('Transfer failed:', transferData);
+      await adminClient.from('withdrawal_requests').update({ status: 'failed' }).eq('id', withdrawal.id);
+      await adminClient.from('profiles').update({ coins: profile.coins ?? 0 }).eq('user_id', user.id);
+      return new Response(JSON.stringify({
+        error: transferData?.message || 'Payout failed. Coins refunded.',
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Update withdrawal status to completed
+    // Mark completed
     await adminClient
       .from('withdrawal_requests')
       .update({ status: 'completed' })
@@ -240,7 +218,7 @@ serve(async (req) => {
       success: true,
       status: 'completed',
       message: `₹${amount} sent to ${upi_id} successfully!`,
-      payout_id: payoutData.id,
+      transfer_id: transferData?.data?.transferId || transferId,
       withdrawal_id: withdrawal.id,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
