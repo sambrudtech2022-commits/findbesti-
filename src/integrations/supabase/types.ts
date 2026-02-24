@@ -489,6 +489,36 @@ export type Database = {
         Returns: undefined
       }
       complete_task: { Args: { _task_id: string }; Returns: undefined }
+      get_leaderboard_earners: {
+        Args: { _time_filter?: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank: number
+          score: number
+          user_id: string
+        }[]
+      }
+      get_leaderboard_popular: {
+        Args: { _time_filter?: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank: number
+          score: number
+          user_id: string
+        }[]
+      }
+      get_leaderboard_referrers: {
+        Args: { _time_filter?: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank: number
+          score: number
+          user_id: string
+        }[]
+      }
       get_public_profile: {
         Args: { _user_id: string }
         Returns: {
