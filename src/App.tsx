@@ -18,6 +18,7 @@ import WhoLikedMePage from "./pages/WhoLikedMePage";
 import EarnCoinsPage from "./pages/EarnCoinsPage";
 import CoinPackPage from "./pages/CoinPackPage";
 import SettingsPage from "./pages/SettingsPage";
+import ReferralPage from "./pages/ReferralPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -122,6 +123,7 @@ const App = () => (
                   <Route path="/earn-coins" element={<ProtectedRoute><EarnCoinsPage /></ProtectedRoute>} />
                   <Route path="/coin-pack" element={<ProtectedRoute><CoinPackPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  <Route path="/referral" element={<ProtectedRoute><ReferralPage /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <BottomNav />

@@ -224,6 +224,8 @@ export type Database = {
           id: string
           is_blocked: boolean | null
           phone: string | null
+          referral_code: string | null
+          referred_by: string | null
           updated_at: string
           user_id: string
         }
@@ -239,6 +241,8 @@ export type Database = {
           id?: string
           is_blocked?: boolean | null
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
           user_id: string
         }
@@ -254,6 +258,8 @@ export type Database = {
           id?: string
           is_blocked?: boolean | null
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -289,6 +295,30 @@ export type Database = {
           plan_name?: string
           status?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          coins_awarded: number
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          coins_awarded?: number
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          coins_awarded?: number
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
         }
         Relationships: []
       }
@@ -446,6 +476,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_referral: {
+        Args: {
+          _bonus_coins?: number
+          _referral_code: string
+          _referred_user_id: string
+        }
+        Returns: undefined
+      }
       broadcast_notification: {
         Args: { _notification_id: string }
         Returns: undefined
