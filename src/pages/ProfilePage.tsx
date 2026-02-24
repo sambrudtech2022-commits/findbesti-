@@ -1,4 +1,4 @@
-import { Settings, Edit3, Crown, Heart, Star, Gift, ChevronRight, LogOut, Shield, Users } from "lucide-react";
+import { Settings, Edit3, Crown, Heart, Star, Gift, ChevronRight, LogOut, Shield, Users, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -13,6 +13,7 @@ const menuItems = [
   { icon: Star, label: "Who Liked Me", desc: "5 new", color: "text-accent", path: "/who-liked-me" },
   { icon: Gift, label: "Earn Coins", desc: "Watch & earn", color: "text-online", path: "/earn-coins" },
   { icon: Users, label: "Refer & Earn", desc: "Invite friends, get coins", color: "text-primary", path: "/referral" },
+  { icon: Trophy, label: "Leaderboard", desc: "Top earners & referrers", color: "text-accent", path: "/leaderboard" },
   { icon: Settings, label: "Settings", desc: "Privacy, notifications", color: "text-muted-foreground", path: "/settings" },
 ];
 
