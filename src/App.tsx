@@ -36,6 +36,7 @@ import AdminSecretsPage from "./pages/admin/AdminSecretsPage";
 import MaintenanceScreen from "./components/MaintenanceScreen";
 import AnnouncementBanner from "./components/AnnouncementBanner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useScreenProtection } from "@/hooks/useScreenProtection";
 
 const queryClient = new QueryClient();
 
@@ -80,61 +81,60 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const ScreenProtectionWrapper = ({ children }: { children: React.ReactNode }) => {
+  useScreenProtection();
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            {/* Admin login - standalone */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
+      <ScreenProtectionWrapper>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              {/* Admin login - standalone */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
 
-            {/* Admin routes - with sidebar layout */}
-            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<AdminUsersPage />} />
-              <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
-              <Route path="reports" element={<AdminReportsPage />} />
-              <Route path="purchases" element={<AdminPurchasesPage />} />
-              <Route path="manage" element={<AdminManagePage />} />
-              <Route path="notifications" element={<AdminNotificationsPage />} />
-              <Route path="settings" element={<AdminSettingsPage />} />
-              <Route path="secrets" element={<AdminSecretsPage />} />
-            </Route>
+              {/* Admin routes - with sidebar layout */}
+              <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+                <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="purchases" element={<AdminPurchasesPage />} />
+                <Route path="manage" element={<AdminManagePage />} />
+                <Route path="notifications" element={<AdminNotificationsPage />} />
+                <Route path="settings" element={<AdminSettingsPage />} />
+                <Route path="secrets" element={<AdminSecretsPage />} />
+              </Route>
 
-            {/* App routes */}
-            <Route path="/*" element={
-              <MaintenanceScreen>
-                <div className="max-w-lg mx-auto relative min-h-screen bg-background shadow-2xl">
-                  <AnnouncementBanner />
-                  <Routes>
-                  <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
-                  <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                  <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-                  <Route path="/call" element={<ProtectedRoute><CallPage /></ProtectedRoute>} />
-                  <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-                  <Route path="/video-call/:userId" element={<ProtectedRoute><VideoCallPage /></ProtectedRoute>} />
-                  <Route path="/audio-call/:userId" element={<ProtectedRoute><AudioCallPage /></ProtectedRoute>} />
-                  <Route path="/profile/edit" element={<ProtectedRoute><ProfileEditPage /></ProtectedRoute>} />
-                  <Route path="/premium" element={<ProtectedRoute><PremiumPage /></ProtectedRoute>} />
-                  <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
-                  <Route path="/who-liked-me" element={<ProtectedRoute><WhoLikedMePage /></ProtectedRoute>} />
-                  <Route path="/earn-coins" element={<ProtectedRoute><EarnCoinsPage /></ProtectedRoute>} />
-                  <Route path="/coin-pack" element={<ProtectedRoute><CoinPackPage /></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-                  <Route path="/referral" element={<ProtectedRoute><ReferralPage /></ProtectedRoute>} />
-                  <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <BottomNav />
-              </div>
-              </MaintenanceScreen>
-            } />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+              {/* Auth route */}
+              <Route path="/auth" element={<AuthRoute><AuthPage /></AuthRoute>} />
+
+              {/* Protected user routes */}
+              <Route path="/" element={<ProtectedRoute><MaintenanceScreen><AnnouncementBanner /><Index /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/chat" element={<ProtectedRoute><MaintenanceScreen><ChatPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/call" element={<ProtectedRoute><MaintenanceScreen><CallPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><MaintenanceScreen><ProfilePage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/profile/edit" element={<ProtectedRoute><MaintenanceScreen><ProfileEditPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/video-call/:userId" element={<ProtectedRoute><VideoCallPage /></ProtectedRoute>} />
+              <Route path="/audio-call/:userId" element={<ProtectedRoute><AudioCallPage /></ProtectedRoute>} />
+              <Route path="/premium" element={<ProtectedRoute><MaintenanceScreen><PremiumPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/favorites" element={<ProtectedRoute><MaintenanceScreen><FavoritesPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/who-liked-me" element={<ProtectedRoute><MaintenanceScreen><WhoLikedMePage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/earn-coins" element={<ProtectedRoute><MaintenanceScreen><EarnCoinsPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/coin-packs" element={<ProtectedRoute><MaintenanceScreen><CoinPackPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><MaintenanceScreen><SettingsPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/referral" element={<ProtectedRoute><MaintenanceScreen><ReferralPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="/leaderboard" element={<ProtectedRoute><MaintenanceScreen><LeaderboardPage /></MaintenanceScreen></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </ScreenProtectionWrapper>
     </TooltipProvider>
   </QueryClientProvider>
 );
