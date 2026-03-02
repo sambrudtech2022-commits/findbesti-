@@ -36,8 +36,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error("Session restore error:", error.message);
-        // Clear stale session on error
-        supabase.auth.signOut();
+        // Clear stale session locally to stop retry loops
+        supabase.auth.signOut({ scope: 'local' });
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
       }
       setSession(session);
       setUser(session?.user ?? null);
