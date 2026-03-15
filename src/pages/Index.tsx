@@ -109,7 +109,7 @@ const HomePage = () => {
               {/* Wallet & Coins Bar */}
               <div
                 onClick={() => navigate("/earn-coins")}
-                className="flex items-center bg-card rounded-full px-2 py-1 gap-1.5 cursor-pointer hover:bg-card/90 transition-all active:scale-95 border border-border"
+                className="flex items-center bg-card rounded-full px-3 py-1.5 gap-2 cursor-pointer hover:bg-card/90 transition-all active:scale-95 border border-border"
               >
                 <div className="flex items-center gap-1">
                   <Wallet size={18} className="text-accent" />
