@@ -132,6 +132,7 @@ const App = () => (
               <Route path="/leaderboard" element={<ProtectedRoute><MaintenanceScreen><LeaderboardPage /></MaintenanceScreen></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <BottomNav />
           </AuthProvider>
         </BrowserRouter>
       </ScreenProtectionWrapper>
