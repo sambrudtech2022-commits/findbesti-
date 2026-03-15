@@ -132,11 +132,11 @@ const GiftPanel = ({
               <button
                 key={gift.id}
                 onClick={() => handleSendGift(gift)}
-                disabled={!canAfford || sending !== null}
+                disabled={sending !== null}
                 className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
                   canAfford
                     ? "bg-primary-foreground/10 hover:bg-primary-foreground/20 active:scale-95"
-                    : "bg-primary-foreground/5 opacity-40 cursor-not-allowed"
+                    : "bg-primary-foreground/5 opacity-50 active:scale-95"
                 } ${isSending ? "scale-95" : ""}`}
               >
                 <span className="text-2xl">{isSending ? "✨" : gift.emoji}</span>
