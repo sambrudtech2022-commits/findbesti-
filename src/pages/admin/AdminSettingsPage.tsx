@@ -148,18 +148,6 @@ const AdminSettingsPage = () => {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Sticky Save Button - Top */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4">
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold gap-2 shadow-lg"
-        >
-          <Save className="w-4 h-4" />
-          {saving ? "Saving..." : "Save All Settings"}
-        </Button>
-      </div>
-
       {/* Call Rates */}
       <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
         <div className="flex items-center gap-3">
@@ -396,6 +384,15 @@ const AdminSettingsPage = () => {
         </div>
       </div>
 
+      {/* Save */}
+      <Button
+        onClick={handleSave}
+        disabled={saving}
+        className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold gap-2"
+      >
+        <Save className="w-4 h-4" />
+        {saving ? "Saving..." : "Save All Settings"}
+      </Button>
     </div>
   );
 };
