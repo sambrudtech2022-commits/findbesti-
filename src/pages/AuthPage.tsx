@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Phone, Lock, ArrowLeft, Shield, Sparkles, Heart } from "lucide-react";
+import { Phone, Lock, ArrowLeft, Shield, Sparkles, Heart, ChevronDown, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { initFirebase, setupRecaptcha, sendFirebaseOtp, type ConfirmationResult, type Auth } from "@/lib/firebase";
+import { countryCodes, type CountryCode } from "@/data/countryCodes";
 
 const AuthPage = () => {
   const [phone, setPhone] = useState("");
@@ -13,17 +14,37 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(countryCodes[0]); // India default
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   const confirmationResultRef = useRef<ConfirmationResult | null>(null);
   const recaptchaVerifierRef = useRef<any>(null);
   const firebaseAuthRef = useRef<Auth | null>(null);
   const recaptchaContainerIdRef = useRef(0);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Pre-init Firebase
     initFirebase().then((auth) => {
       firebaseAuthRef.current = auth;
     }).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowCountryPicker(false);
+      }
+    };
+    if (showCountryPicker) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showCountryPicker]);
+
+  const filteredCountries = countrySearch
+    ? countryCodes.filter(c =>
+        c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+        c.code.includes(countrySearch)
+      )
+    : countryCodes;
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -40,27 +61,25 @@ const AuthPage = () => {
   };
 
   const handleSendOtp = async () => {
-    const fullPhone = "+91" + phone;
+    const fullPhone = selectedCountry.code + phone;
     setLoading(true);
     try {
-    const auth = firebaseAuthRef.current || await initFirebase();
-      
-      // Always clear old recaptcha
+      const auth = firebaseAuthRef.current || await initFirebase();
+
       if (recaptchaVerifierRef.current) {
         try { recaptchaVerifierRef.current.clear(); } catch (_) {}
         recaptchaVerifierRef.current = null;
       }
-      
-      // Create a fresh container with unique ID to avoid "already rendered" error
+
       const oldContainer = document.getElementById("recaptcha-container");
       if (oldContainer) oldContainer.remove();
-      
+
       recaptchaContainerIdRef.current += 1;
       const newContainer = document.createElement("div");
       newContainer.id = "recaptcha-container";
       newContainer.setAttribute("data-key", String(recaptchaContainerIdRef.current));
       document.body.appendChild(newContainer);
-      
+
       recaptchaVerifierRef.current = setupRecaptcha(auth, "recaptcha-container");
 
       const confirmationResult = await sendFirebaseOtp(fullPhone, recaptchaVerifierRef.current);
@@ -69,7 +88,6 @@ const AuthPage = () => {
       toast.success("OTP भेजा गया!");
     } catch (error: any) {
       console.error("Send OTP error:", error);
-      // Reset recaptcha on error
       if (recaptchaVerifierRef.current) {
         try { recaptchaVerifierRef.current.clear(); } catch (_) {}
       }
@@ -93,14 +111,10 @@ const AuthPage = () => {
         throw new Error("Please request OTP first");
       }
 
-      // Verify OTP with Firebase
       const result = await confirmationResultRef.current.confirm(otp);
       const firebaseUser = result.user;
-
-      // Get Firebase ID token for server-side verification
       const idToken = await firebaseUser.getIdToken();
 
-      // Now create/login Supabase session via edge function
       const res = await supabase.functions.invoke("verify-otp", {
         body: { firebase_id_token: idToken },
       });
@@ -130,7 +144,6 @@ const AuthPage = () => {
 
       {/* Hero Section */}
       <div className="gradient-primary relative flex-1 flex flex-col px-6 pt-12 pb-8 overflow-hidden">
-        {/* Floating decorative elements */}
         <div className="absolute top-8 right-6 animate-bounce-in" style={{ animationDelay: "0.3s" }}>
           <div className="w-14 h-14 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center rotate-12">
             <Heart className="w-7 h-7 text-primary-foreground fill-primary-foreground/50" />
@@ -144,17 +157,11 @@ const AuthPage = () => {
         <div className="absolute bottom-16 left-6 w-20 h-20 rounded-full bg-primary-foreground/5 blur-xl" />
         <div className="absolute top-20 left-1/2 w-32 h-32 rounded-full bg-primary-foreground/5 blur-2xl" />
 
-        {/* App Name */}
         <div className="animate-slide-up">
-          <h1 className="text-5xl font-black text-primary-foreground italic tracking-tight leading-none">
-            FIND
-          </h1>
-          <h1 className="text-5xl font-black text-primary-foreground italic tracking-tight leading-none mt-1">
-            BESTI
-          </h1>
+          <h1 className="text-5xl font-black text-primary-foreground italic tracking-tight leading-none">FIND</h1>
+          <h1 className="text-5xl font-black text-primary-foreground italic tracking-tight leading-none mt-1">BESTI</h1>
         </div>
 
-        {/* Taglines */}
         <div className="mt-8 space-y-2 animate-slide-up" style={{ animationDelay: "0.15s" }}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
@@ -177,15 +184,79 @@ const AuthPage = () => {
       <div className="bg-card rounded-t-[2rem] -mt-8 relative z-10 px-5 pt-6 pb-5 shadow-[0_-12px_40px_rgba(0,0,0,0.1)] animate-slide-up" style={{ animationDelay: "0.25s" }}>
         {!otpSent ? (
           <div className="space-y-3.5">
-            <div className="flex items-center gap-0 h-14 rounded-2xl bg-muted/40 border-2 border-border/40 overflow-hidden focus-within:border-primary/40 transition-colors">
-              <span className="pl-4 pr-2 text-base font-bold text-primary shrink-0">+91</span>
+            <div className="flex items-center gap-0 h-14 rounded-2xl bg-muted/40 border-2 border-border/40 overflow-visible relative focus-within:border-primary/40 transition-colors">
+              {/* Country Code Picker Button */}
+              <div className="relative" ref={pickerRef}>
+                <button
+                  type="button"
+                  onClick={() => { setShowCountryPicker(!showCountryPicker); setCountrySearch(""); }}
+                  className="flex items-center gap-1 pl-3 pr-1.5 h-14 hover:bg-muted/60 transition-colors rounded-l-2xl"
+                >
+                  <span className="text-lg">{selectedCountry.flag}</span>
+                  <span className="text-sm font-bold text-foreground">{selectedCountry.code}</span>
+                  <ChevronDown size={14} className="text-muted-foreground" />
+                </button>
+
+                {/* Country Dropdown */}
+                {showCountryPicker && (
+                  <div className="absolute left-0 bottom-[calc(100%+4px)] w-72 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-slide-up">
+                    <div className="p-3 border-b border-border">
+                      <div className="relative">
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search country or code..."
+                          value={countrySearch}
+                          onChange={(e) => setCountrySearch(e.target.value)}
+                          className="w-full bg-muted rounded-xl pl-9 pr-8 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                        {countrySearch && (
+                          <button onClick={() => setCountrySearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <X size={14} className="text-muted-foreground" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {filteredCountries.map((country) => (
+                        <button
+                          key={country.name + country.code}
+                          onClick={() => {
+                            setSelectedCountry(country);
+                            setShowCountryPicker(false);
+                            setCountrySearch("");
+                            setPhone("");
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors ${
+                            selectedCountry.code === country.code && selectedCountry.name === country.name
+                              ? "bg-primary/10 text-primary font-bold"
+                              : "text-foreground"
+                          }`}
+                        >
+                          <span className="text-lg">{country.flag}</span>
+                          <span className="flex-1 text-left">{country.name}</span>
+                          <span className="text-muted-foreground font-mono text-xs">{country.code}</span>
+                          {selectedCountry.code === country.code && selectedCountry.name === country.name && (
+                            <span className="text-primary">✓</span>
+                          )}
+                        </button>
+                      ))}
+                      {filteredCountries.length === 0 && (
+                        <p className="text-center text-muted-foreground text-sm py-4">No country found</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="w-px h-7 bg-border/50" />
               <Input
                 type="tel"
                 placeholder="Enter mobile number"
                 value={phone}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  const val = e.target.value.replace(/\D/g, "").slice(0, selectedCountry.maxDigits);
                   setPhone(val);
                 }}
                 className="border-0 bg-transparent h-full text-base font-semibold focus-visible:ring-0 shadow-none pl-3"
@@ -193,13 +264,13 @@ const AuthPage = () => {
             </div>
             <Button
               onClick={() => {
-                if (phone.length === 10) {
+                if (phone.length >= 7) {
                   handleSendOtp();
                 } else {
-                  toast.error("कृपया 10 digit का mobile number भरें");
+                  toast.error("कृपया valid mobile number भरें");
                 }
               }}
-              disabled={loading || phone.replace(/\D/g, "").length !== 10}
+              disabled={loading || phone.length < 7}
               className="w-full h-12 rounded-2xl gradient-primary text-primary-foreground font-extrabold text-base shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
             >
               {loading ? "भेज रहे हैं..." : "Get OTP →"}
@@ -214,7 +285,7 @@ const AuthPage = () => {
               <ArrowLeft className="w-4 h-4" /> नंबर बदलें
             </button>
             <p className="text-sm text-muted-foreground text-center">
-              OTP भेजा गया: <span className="font-extrabold text-foreground">+91 {phone}</span>
+              OTP भेजा गया: <span className="font-extrabold text-foreground">{selectedCountry.flag} {selectedCountry.code} {phone}</span>
             </p>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
