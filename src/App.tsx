@@ -79,7 +79,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  if (!user) return <Navigate to="/admin/login" replace />;
+  if (!user) return <Navigate to="/x-panel/login" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
