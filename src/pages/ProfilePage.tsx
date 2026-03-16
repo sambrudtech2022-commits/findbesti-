@@ -97,7 +97,7 @@ const ProfilePage = () => {
       {isAdmin && (
         <div className="px-4 mt-6">
           <button
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate("/x-panel")}
             className="w-full flex items-center gap-3 py-3.5 px-3 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
           >
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">

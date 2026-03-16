@@ -21,16 +21,16 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
-  { icon: Users, label: "Users", path: "/admin/users" },
-  { icon: CreditCard, label: "Withdrawals", path: "/admin/withdrawals" },
-  { icon: AlertTriangle, label: "Reports", path: "/admin/reports" },
-  { icon: ShoppingBag, label: "Purchases", path: "/admin/purchases" },
-  { icon: Coins, label: "Coin Packs", path: "/admin/coin-packs" },
-  { icon: ShieldCheck, label: "Manage Admins", path: "/admin/manage" },
-  { icon: Bell, label: "Notifications", path: "/admin/notifications" },
-  { icon: Settings, label: "App Settings", path: "/admin/settings" },
-  { icon: KeyRound, label: "Secrets", path: "/admin/secrets" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/x-panel" },
+  { icon: Users, label: "Users", path: "/x-panel/users" },
+  { icon: CreditCard, label: "Withdrawals", path: "/x-panel/withdrawals" },
+  { icon: AlertTriangle, label: "Reports", path: "/x-panel/reports" },
+  { icon: ShoppingBag, label: "Purchases", path: "/x-panel/purchases" },
+  { icon: Coins, label: "Coin Packs", path: "/x-panel/coin-packs" },
+  { icon: ShieldCheck, label: "Manage Admins", path: "/x-panel/manage" },
+  { icon: Bell, label: "Notifications", path: "/x-panel/notifications" },
+  { icon: Settings, label: "App Settings", path: "/x-panel/settings" },
+  { icon: KeyRound, label: "Secrets", path: "/x-panel/secrets" },
 ];
 
 const AdminLayout = () => {
@@ -41,7 +41,7 @@ const AdminLayout = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/admin/login");
+    navigate("/x-panel/login");
   };
 
   return (
