@@ -59,39 +59,22 @@ const GiftPanel = ({
 
     setSending(gift.id);
     try {
-      // Fetch latest coin balance
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("coins")
-        .eq("user_id", user.id)
-        .single();
-
-      const currentCoins = profile?.coins ?? 0;
-      if (currentCoins < gift.coins) {
-        toast.error("Insufficient coins!");
+      // Send gift via secure server-side function
+      if (!isValidUUID(receiverId)) {
+        toast.error("Invalid receiver");
         return;
       }
 
-      // Deduct coins
-      const { error: coinError } = await supabase
-        .from("profiles")
-        .update({ coins: currentCoins - gift.coins })
-        .eq("user_id", user.id);
+      const { error: giftError } = await supabase.rpc("send_gift", {
+        _receiver_id: receiverId,
+        _gift_id: gift.id,
+        _gift_name: gift.name,
+        _gift_emoji: gift.emoji,
+        _coins_spent: gift.coins,
+        _channel_name: channelName || null,
+      });
 
-      if (coinError) throw coinError;
-
-      // Record gift transaction only if receiver is a valid UUID
-      if (isValidUUID(receiverId)) {
-        await supabase.from("gift_transactions").insert({
-          sender_id: user.id,
-          receiver_id: receiverId,
-          gift_id: gift.id,
-          gift_name: gift.name,
-          gift_emoji: gift.emoji,
-          coins_spent: gift.coins,
-          channel_name: channelName,
-        });
-      }
+      if (giftError) throw giftError;
 
       onCoinsDeducted(gift.coins);
       onGiftSent(gift);
