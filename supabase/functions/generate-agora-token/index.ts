@@ -168,23 +168,66 @@ async function buildToken(
   return VERSION + appID + b64;
 }
 
+const CHANNEL_NAME_REGEX = /^[a-zA-Z0-9_-]{3,64}$/;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     const appId = Deno.env.get("AGORA_APP_ID");
     const appCertificate = Deno.env.get("AGORA_APP_CERTIFICATE");
 
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Authentication configuration missing");
+    }
     if (!appId || !appCertificate) {
       throw new Error("Agora credentials not configured");
     }
 
-    const { channelName, uid } = await req.json();
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
-    if (!channelName) {
-      throw new Error("channelName is required");
+    const {
+      data: { user },
+      error: userError,
+    } = await userClient.auth.getUser();
+
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const body = await req.json();
+    const channelName = typeof body?.channelName === "string" ? body.channelName.trim() : "";
+    const parsedUid = Number(body?.uid ?? 0);
+
+    if (!CHANNEL_NAME_REGEX.test(channelName)) {
+      return new Response(
+        JSON.stringify({ error: "channelName must be 3-64 chars (letters, numbers, _ or -)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!Number.isInteger(parsedUid) || parsedUid < 0 || parsedUid > 4294967295) {
+      return new Response(JSON.stringify({ error: "uid must be a valid unsigned integer" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -194,19 +237,19 @@ serve(async (req) => {
       appId,
       appCertificate,
       channelName,
-      uid || 0,
-      1, // PUBLISHER role
+      parsedUid,
+      1,
       privilegeExpiredTs
     );
 
-    return new Response(
-      JSON.stringify({ token, appId, channelName, uid: uid || 0 }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ token, appId, channelName, uid: parsedUid }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const message = error instanceof Error ? error.message : "Failed to generate token";
+    return new Response(JSON.stringify({ error: message }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
