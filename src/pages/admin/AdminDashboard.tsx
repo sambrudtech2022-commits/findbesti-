@@ -83,10 +83,10 @@ const AdminDashboard = () => {
   }, [revenueData]);
 
   const cards = [
-    { icon: Users, label: "Total Users", value: stats?.totalUsers ?? 0, color: "text-primary", path: "/admin/users" },
-    { icon: CreditCard, label: "Pending Withdrawals", value: stats?.pendingWithdrawals ?? 0, color: "text-accent", path: "/admin/withdrawals" },
-    { icon: AlertTriangle, label: "Pending Reports", value: stats?.pendingReports ?? 0, color: "text-destructive", path: "/admin/reports" },
-    { icon: ShoppingBag, label: "Total Purchases", value: stats?.totalPurchases ?? 0, color: "text-primary", path: "/admin/purchases" },
+    { icon: Users, label: "Total Users", value: stats?.totalUsers ?? 0, color: "text-primary", path: "/x-panel/users" },
+    { icon: CreditCard, label: "Pending Withdrawals", value: stats?.pendingWithdrawals ?? 0, color: "text-accent", path: "/x-panel/withdrawals" },
+    { icon: AlertTriangle, label: "Pending Reports", value: stats?.pendingReports ?? 0, color: "text-destructive", path: "/x-panel/reports" },
+    { icon: ShoppingBag, label: "Total Purchases", value: stats?.totalPurchases ?? 0, color: "text-primary", path: "/x-panel/purchases" },
   ];
 
   return (
