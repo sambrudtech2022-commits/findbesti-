@@ -14,6 +14,7 @@ import {
   KeyRound,
   Menu,
   X,
+  Coins,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -25,6 +26,7 @@ const navItems = [
   { icon: CreditCard, label: "Withdrawals", path: "/admin/withdrawals" },
   { icon: AlertTriangle, label: "Reports", path: "/admin/reports" },
   { icon: ShoppingBag, label: "Purchases", path: "/admin/purchases" },
+  { icon: Coins, label: "Coin Packs", path: "/admin/coin-packs" },
   { icon: ShieldCheck, label: "Manage Admins", path: "/admin/manage" },
   { icon: Bell, label: "Notifications", path: "/admin/notifications" },
   { icon: Settings, label: "App Settings", path: "/admin/settings" },

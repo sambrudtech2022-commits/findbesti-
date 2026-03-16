@@ -1,24 +1,19 @@
 import { useState } from "react";
-import { ArrowLeft, Loader2, Coins } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const COIN_PACKS = [
-  { coins: 165000, price: 49999, save: "60%" },
-  { coins: 100000, price: 29999, save: "50%" },
-  { coins: 66000, price: 19999, save: "45%" },
-  { coins: 33000, price: 9999, save: "45%", popular: true },
-  { coins: 15000, price: 4999, save: "40%" },
-  { coins: 5500, price: 1999, save: "33%" },
-  { coins: 2500, price: 999, save: "30%" },
-  { coins: 1200, price: 499, save: "25%" },
-  { coins: 440, price: 199, save: "20%" },
-  { coins: 200, price: 99, save: "10%" },
-  { coins: 90, price: 49 },
-  { coins: 40, price: 25 },
-];
+interface CoinPack {
+  id: string;
+  coins: number;
+  price: number;
+  save_percent: string | null;
+  popular: boolean;
+  sort_order: number;
+}
 
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -37,14 +32,27 @@ const loadRazorpayScript = (): Promise<boolean> => {
 const CoinPackPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [loadingPack, setLoadingPack] = useState<number | null>(null);
+  const [loadingPack, setLoadingPack] = useState<string | null>(null);
 
-  const handleBuy = async (pack: typeof COIN_PACKS[0], index: number) => {
+  const { data: coinPacks = [], isLoading } = useQuery({
+    queryKey: ["coin-packs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("coin_packs")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as CoinPack[];
+    },
+  });
+
+  const handleBuy = async (pack: CoinPack) => {
     if (!user) {
       toast.error("पहले login करें");
       return;
     }
-    setLoadingPack(index);
+    setLoadingPack(pack.id);
     try {
       const loaded = await loadRazorpayScript();
       if (!loaded) {
@@ -70,27 +78,22 @@ const CoinPackPage = () => {
         prefill: { email: user?.email || "" },
         theme: { color: "#7c3aed" },
         handler: async () => {
-          // Add coins to profile
-          const { error: updateError } = await supabase.rpc("complete_task" as any, { _task_id: "noop" }).then(() => {
-            // Directly update coins
-            return supabase
-              .from("purchases")
-              .insert({
-                user_id: user.id,
-                plan_name: `${pack.coins} Coins Pack`,
-                amount: pack.price,
-                status: "completed",
-                payment_id: data.order_id,
-              });
-          });
-          
-          // Update coins in profile
+          await supabase
+            .from("purchases")
+            .insert({
+              user_id: user.id,
+              plan_name: `${pack.coins} Coins Pack`,
+              amount: pack.price,
+              status: "completed",
+              payment_id: data.order_id,
+            });
+
           const { data: profile } = await supabase
             .from("profiles")
             .select("coins")
             .eq("user_id", user.id)
             .maybeSingle();
-          
+
           const currentCoins = profile?.coins ?? 0;
           await supabase
             .from("profiles")
@@ -130,41 +133,47 @@ const CoinPackPage = () => {
 
       {/* Packs Grid */}
       <div className="px-3 -mt-2">
-        <div className="grid grid-cols-3 gap-2.5">
-          {COIN_PACKS.map((pack, i) => (
-            <button
-              key={i}
-              onClick={() => handleBuy(pack, i)}
-              disabled={loadingPack !== null}
-              className="relative bg-card rounded-2xl p-3 flex flex-col items-center gap-1 border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-60"
-            >
-              {pack.popular && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground text-[9px] font-extrabold px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                  POPULAR
-                </span>
-              )}
-              <div className="text-2xl mt-1">🪙</div>
-              {loadingPack === i ? (
-                <Loader2 size={20} className="animate-spin text-primary my-2" />
-              ) : (
-                <>
-                  <p className="text-lg font-extrabold text-foreground leading-tight">
-                    {pack.coins.toLocaleString()}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-medium">Coins</p>
-                  {pack.save && (
-                    <span className="bg-primary/15 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full">
-                      Save {pack.save}
-                    </span>
-                  )}
-                  <p className="text-sm font-extrabold text-primary mt-0.5">
-                    ₹{pack.price.toLocaleString()}
-                  </p>
-                </>
-              )}
-            </button>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 size={28} className="animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2.5">
+            {coinPacks.map((pack) => (
+              <button
+                key={pack.id}
+                onClick={() => handleBuy(pack)}
+                disabled={loadingPack !== null}
+                className="relative bg-card rounded-2xl p-3 flex flex-col items-center gap-1 border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.03] active:scale-95 transition-all disabled:opacity-60"
+              >
+                {pack.popular && (
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground text-[9px] font-extrabold px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                    POPULAR
+                  </span>
+                )}
+                <div className="text-2xl mt-1">🪙</div>
+                {loadingPack === pack.id ? (
+                  <Loader2 size={20} className="animate-spin text-primary my-2" />
+                ) : (
+                  <>
+                    <p className="text-lg font-extrabold text-foreground leading-tight">
+                      {pack.coins.toLocaleString()}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-medium">Coins</p>
+                    {pack.save_percent && (
+                      <span className="bg-primary/15 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full">
+                        Save {pack.save_percent}
+                      </span>
+                    )}
+                    <p className="text-sm font-extrabold text-primary mt-0.5">
+                      ₹{pack.price.toLocaleString()}
+                    </p>
+                  </>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Benefits */}

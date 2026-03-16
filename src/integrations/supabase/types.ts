@@ -59,6 +59,42 @@ export type Database = {
         }
         Relationships: []
       }
+      coin_packs: {
+        Row: {
+          active: boolean
+          coins: number
+          created_at: string
+          id: string
+          popular: boolean
+          price: number
+          save_percent: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          coins: number
+          created_at?: string
+          id?: string
+          popular?: boolean
+          price: number
+          save_percent?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          coins?: number
+          created_at?: string
+          id?: string
+          popular?: boolean
+          price?: number
+          save_percent?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string

@@ -33,6 +33,7 @@ import AdminManagePage from "./pages/admin/AdminManagePage";
 import AdminNotificationsPage from "./pages/admin/AdminNotificationsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminSecretsPage from "./pages/admin/AdminSecretsPage";
+import AdminCoinPacksPage from "./pages/admin/AdminCoinPacksPage";
 import MaintenanceScreen from "./components/MaintenanceScreen";
 import AnnouncementBanner from "./components/AnnouncementBanner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -111,6 +112,7 @@ const App = () => (
                 <Route path="notifications" element={<AdminNotificationsPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
                 <Route path="secrets" element={<AdminSecretsPage />} />
+                <Route path="coin-packs" element={<AdminCoinPacksPage />} />
               </Route>
 
               {/* Auth route */}
