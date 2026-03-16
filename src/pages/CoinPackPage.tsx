@@ -61,7 +61,12 @@ const CoinPackPage = () => {
       }
 
       const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
-        body: { amount: pack.price, plan_name: `${pack.coins} Coins Pack` },
+        body: {
+          amount: pack.price,
+          plan_name: `${pack.coins} Coins Pack`,
+          product_type: "coins",
+          coins: pack.coins,
+        },
       });
 
       if (error || !data?.order_id) {
@@ -77,30 +82,26 @@ const CoinPackPage = () => {
         order_id: data.order_id,
         prefill: { email: user?.email || "" },
         theme: { color: "#7c3aed" },
-        handler: async () => {
-          await supabase
-            .from("purchases")
-            .insert({
-              user_id: user.id,
-              plan_name: `${pack.coins} Coins Pack`,
-              amount: pack.price,
-              status: "completed",
-              payment_id: data.order_id,
+        handler: async (response: any) => {
+          try {
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
+              body: {
+                product_type: "coins",
+                coins: pack.coins,
+                razorpay_order_id: response?.razorpay_order_id,
+                razorpay_payment_id: response?.razorpay_payment_id,
+                razorpay_signature: response?.razorpay_signature,
+              },
             });
 
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("coins")
-            .eq("user_id", user.id)
-            .maybeSingle();
+            if (verifyError || verifyData?.error || !verifyData?.success) {
+              throw new Error(verifyError?.message || verifyData?.error || "Payment verification failed");
+            }
 
-          const currentCoins = profile?.coins ?? 0;
-          await supabase
-            .from("profiles")
-            .update({ coins: currentCoins + pack.coins })
-            .eq("user_id", user.id);
-
-          toast.success(`🎉 ${pack.coins.toLocaleString()} coins added to your wallet!`);
+            toast.success(`🎉 ${pack.coins.toLocaleString()} coins added to your wallet!`);
+          } catch (verificationError: any) {
+            toast.error(verificationError?.message || "Payment verify nahi ho paya");
+          }
         },
         modal: {
           ondismiss: () => toast.info("Payment cancelled"),
