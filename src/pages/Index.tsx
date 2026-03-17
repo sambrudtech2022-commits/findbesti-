@@ -107,21 +107,24 @@ const HomePage = () => {
             </h1>
             <div className="flex items-center gap-2">
               {/* Wallet & Coins Bar */}
-              <div
-                onClick={() => navigate("/earn-coins")}
-                className="flex items-center bg-card rounded-full px-3 py-1.5 gap-2 cursor-pointer hover:bg-card/90 transition-all active:scale-95 border border-border"
-              >
-                <div className="flex items-center gap-1">
+              <div className="flex items-center bg-card rounded-full px-3 py-1.5 gap-2 border border-border">
+                <div
+                  onClick={() => navigate("/earn-coins")}
+                  className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all active:scale-95"
+                >
                   <Wallet size={18} className="text-accent" />
                   <span className="text-sm font-bold text-foreground">₹{coins}</span>
                 </div>
                 <div className="w-px h-4 bg-border" />
-                <div className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}>
-                  <Heart size={18} className="text-accent fill-accent" />
+                <div
+                  onClick={() => navigate("/coin-pack")}
+                  className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all active:scale-95"
+                >
+                  <span className="text-base">🪙</span>
                   <span className="text-sm font-bold text-foreground">{coins}</span>
                 </div>
                 <div
-                  onClick={(e) => { e.stopPropagation(); navigate("/coin-pack"); }}
+                  onClick={() => navigate("/coin-pack")}
                   className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center cursor-pointer hover:bg-muted-foreground/30"
                 >
                   <Plus size={12} className="text-muted-foreground" />
