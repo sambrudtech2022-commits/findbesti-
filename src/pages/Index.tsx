@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Heart, Plus, X } from "lucide-react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Plus, X } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
