@@ -53,28 +53,20 @@ serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check coin balance
-    const { data: profile, error: profileError } = await adminClient
-      .from('profiles')
-      .select('coins')
-      .eq('user_id', user.id)
-      .single();
+    // Atomic coin deduction - prevents race conditions
+    const { error: deductError } = await adminClient.rpc('process_withdrawal_atomic', {
+      _user_id: user.id,
+      _amount: amount,
+    });
 
-    if (profileError || !profile) {
-      return new Response(JSON.stringify({ error: 'Profile not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if ((profile.coins ?? 0) < amount) {
+    if (deductError) {
       return new Response(JSON.stringify({ error: 'Insufficient coins' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Insert withdrawal request
+    // Insert withdrawal request after successful deduction
     const { data: withdrawal, error: insertError } = await adminClient
       .from('withdrawal_requests')
       .insert({
@@ -85,20 +77,6 @@ serve(async (req) => {
       })
       .select()
       .single();
-
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      return new Response(JSON.stringify({ error: insertError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Deduct coins
-    await adminClient
-      .from('profiles')
-      .update({ coins: (profile.coins ?? 0) - amount })
-      .eq('user_id', user.id);
 
     // Check for Cashfree Payouts credentials
     const CASHFREE_CLIENT_ID = Deno.env.get('CASHFREE_CLIENT_ID');
