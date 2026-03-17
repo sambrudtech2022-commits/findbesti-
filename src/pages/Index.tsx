@@ -106,27 +106,22 @@ const HomePage = () => {
               <span className="text-gradient">FIND BESTI 💫</span>
             </h1>
             <div className="flex items-center gap-2">
-              {/* Wallet & Coins Bar */}
-              <div className="flex items-center bg-card rounded-full px-3 py-1.5 gap-2 border border-border">
-                <div
-                  onClick={() => navigate("/earn-coins")}
-                  className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all active:scale-95"
-                >
-                  <Wallet size={18} className="text-accent" />
-                  <span className="text-sm font-bold text-foreground">₹{coins}</span>
-                </div>
-                <div className="w-px h-4 bg-border" />
-                <div
-                  onClick={() => navigate("/coin-pack")}
-                  className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all active:scale-95"
-                >
-                  <span className="text-base">🪙</span>
-                  <span className="text-sm font-bold text-foreground">{coins}</span>
-                </div>
-                <div
-                  onClick={() => navigate("/coin-pack")}
-                  className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center cursor-pointer hover:bg-muted-foreground/30"
-                >
+              {/* Earning Button */}
+              <div
+                onClick={() => navigate("/earn-coins")}
+                className="flex items-center bg-card rounded-full px-3 py-1.5 gap-1.5 border border-border cursor-pointer hover:opacity-80 transition-all active:scale-95"
+              >
+                <Wallet size={16} className="text-accent" />
+                <span className="text-sm font-bold text-foreground">₹{coins}</span>
+              </div>
+              {/* Recharge Button */}
+              <div
+                onClick={() => navigate("/coin-pack")}
+                className="flex items-center bg-card rounded-full px-3 py-1.5 gap-1.5 border border-border cursor-pointer hover:opacity-80 transition-all active:scale-95"
+              >
+                <span className="text-base">🪙</span>
+                <span className="text-sm font-bold text-foreground">{coins}</span>
+                <div className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center">
                   <Plus size={12} className="text-muted-foreground" />
                 </div>
               </div>
