@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Plus, X } from "lucide-react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Plus, X, Loader2, IndianRupee } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const tabs = [
 { label: "Hot 🔥", icon: Flame },
