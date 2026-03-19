@@ -185,7 +185,7 @@ const CoinPackPage = () => {
             <li className="flex items-center gap-2">🎥 <span>Video & Audio calls करें</span></li>
             <li className="flex items-center gap-2">💝 <span>Gifts भेजें अपने friends को</span></li>
             <li className="flex items-center gap-2">⭐ <span>Profile boost करें</span></li>
-            <li className="flex items-center gap-2">💰 <span>UPI से withdrawal करें (1 Coin = ₹1)</span></li>
+            <li className="flex items-center gap-2">💰 <span>Premium features unlock करें</span></li>
           </ul>
         </div>
       </div>
