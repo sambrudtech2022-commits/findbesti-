@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Plus, X } from "lucide-react";
+import { Search, Sparkles, Flame, MapPin, Clock, TrendingUp, Wallet, Plus, X, Loader2, IndianRupee } from "lucide-react";
 import UserCard from "@/components/UserCard";
 import { mockUsers } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const tabs = [
 { label: "Hot 🔥", icon: Flame },
@@ -63,6 +66,9 @@ const HomePage = () => {
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [countrySearch, setCountrySearch] = useState("");
   const [coins, setCoins] = useState(0);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [upiId, setUpiId] = useState("");
+  const [withdrawLoading, setWithdrawLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -96,6 +102,40 @@ const HomePage = () => {
       })
     : mockUsers;
 
+  const handleWithdraw = async () => {
+    if (!user) { toast.error("पहले login करें"); return; }
+    if (!upiId || !upiId.includes("@")) {
+      toast.error("सही UPI ID डालें (e.g. name@upi)");
+      return;
+    }
+    if (coins < 100) {
+      toast.error("Minimum 100 coins चाहिए withdrawal के लिए");
+      return;
+    }
+    setWithdrawLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("process-withdrawal", {
+        body: { upi_id: upiId, amount: coins },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.status === 'completed') {
+        toast.success(`₹${coins} आपके UPI ${upiId} पर भेज दिया गया! 🎉`);
+      } else {
+        toast.success(data?.message || `₹${coins} withdrawal request भेजा गया!`);
+      }
+      setShowWithdrawModal(false);
+      setUpiId("");
+      // Refresh coins
+      supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle()
+        .then(({ data }) => { if (data) setCoins(data.coins ?? 0); });
+    } catch (error: any) {
+      toast.error(error.message || "Withdrawal failed");
+    } finally {
+      setWithdrawLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
@@ -109,7 +149,7 @@ const HomePage = () => {
               {/* Wallet & Coins Bar */}
               <div className="flex items-center bg-card rounded-full px-3 py-1.5 gap-2 border border-border">
                 <div
-                  onClick={() => navigate("/earn-coins")}
+                  onClick={() => setShowWithdrawModal(true)}
                   className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all active:scale-95"
                 >
                   <Wallet size={18} className="text-accent" />
@@ -254,6 +294,59 @@ const HomePage = () => {
           )}
         </div>
       </div>
+      {/* Withdraw Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 animate-in fade-in" onClick={() => setShowWithdrawModal(false)}>
+          <div className="w-full max-w-md bg-card rounded-t-3xl p-5 pb-8 space-y-4 animate-in slide-in-from-bottom" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wallet size={20} className="text-primary" />
+                <h3 className="font-extrabold text-lg text-foreground">Withdraw</h3>
+              </div>
+              <button onClick={() => setShowWithdrawModal(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <X size={16} className="text-muted-foreground" />
+              </button>
+            </div>
+
+            <div className="bg-muted/50 rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Available Balance</p>
+                <p className="text-2xl font-extrabold text-foreground">{coins} <span className="text-xs font-normal">coins</span></p>
+              </div>
+              <div className="flex items-center gap-0.5">
+                <IndianRupee size={18} className="text-accent" />
+                <span className="text-xl font-extrabold text-accent">{coins}</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-muted-foreground mb-1.5 block">Enter UPI ID</label>
+              <Input
+                type="text"
+                placeholder="e.g. name@upi"
+                value={upiId}
+                onChange={(e) => setUpiId(e.target.value)}
+                className="h-12 rounded-xl text-base border-border/60"
+                autoFocus
+              />
+            </div>
+
+            {upiId.includes("@") && (
+              <Button
+                onClick={handleWithdraw}
+                disabled={coins < 100 || withdrawLoading}
+                className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-base"
+              >
+                {withdrawLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : `Withdraw ₹${coins}`}
+              </Button>
+            )}
+
+            <p className="text-[10px] text-muted-foreground text-center">
+              Minimum 100 coins • 1 Coin = ₹1 • Instant UPI Transfer
+            </p>
+          </div>
+        </div>
+      )}
     </div>);
 
 };
