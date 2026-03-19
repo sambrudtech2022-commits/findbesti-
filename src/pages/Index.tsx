@@ -66,9 +66,6 @@ const HomePage = () => {
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [countrySearch, setCountrySearch] = useState("");
   const [coins, setCoins] = useState(0);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [upiId, setUpiId] = useState("");
-  const [withdrawLoading, setWithdrawLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const pickerRef = useRef<HTMLDivElement>(null);
