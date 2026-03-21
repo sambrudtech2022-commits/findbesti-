@@ -87,7 +87,7 @@ const AuthPage = () => {
       const confirmationResult = await sendFirebaseOtp(fullPhone, recaptchaVerifierRef.current);
       confirmationResultRef.current = confirmationResult;
       setOtpSent(true);
-      toast.success("OTP sent successfully!");
+      toast.success(t("toast.otpSent"));
     } catch (error: any) {
       console.error("Send OTP error:", error);
       if (recaptchaVerifierRef.current) {
