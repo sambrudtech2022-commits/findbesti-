@@ -305,7 +305,7 @@ const AuthPage = () => {
               disabled={loading}
               className="w-full h-12 rounded-2xl gradient-primary text-primary-foreground font-extrabold text-base shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
             >
-              {loading ? "Verifying..." : "Verify OTP ✓"}
+              {loading ? t("auth.verifying") : t("auth.verifyOtp")}
             </Button>
           </div>
         )}
