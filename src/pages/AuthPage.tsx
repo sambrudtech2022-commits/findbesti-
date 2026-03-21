@@ -169,7 +169,7 @@ const AuthPage = () => {
             <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
               <Shield className="w-4 h-4 text-primary-foreground" />
             </div>
-            <p className="text-lg font-bold text-primary-foreground/90">100% safe & secure</p>
+            <p className="text-lg font-bold text-primary-foreground/90">{t("auth.safe")}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
