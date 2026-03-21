@@ -102,7 +102,7 @@ const AuthPage = () => {
 
   const handleVerifyOtp = async () => {
     if (!otp) {
-      toast.error("कृपया OTP भरें");
+      toast.error("Please enter OTP");
       return;
     }
     setLoading(true);
