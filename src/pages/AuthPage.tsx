@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { initFirebase, setupRecaptcha, sendFirebaseOtp, type ConfirmationResult, type Auth } from "@/lib/firebase";
 import { countryCodes, type CountryCode } from "@/data/countryCodes";
 
-const { t } = useLanguage();
+const AuthPage = () => {
+  const { t } = useLanguage();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
