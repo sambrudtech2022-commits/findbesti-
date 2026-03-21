@@ -12,7 +12,7 @@ const UserCard = ({ user }: UserCardProps) => {
   const [liked, setLiked] = useState(false);
 
   return (
-    <div className="relative group rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer aspect-[3/4] active:scale-[0.97]">
+    <div className="relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer aspect-[3/4] active:scale-[0.97] ring-1 ring-border/30">
       <img
         src={user.avatar}
         alt={user.name}

@@ -242,7 +242,7 @@ const HomePage = () => {
 
       {/* User Grid */}
       <div className="px-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3.5">
           {filteredUsers.map((user, index) =>
           <div
             key={user.id}
