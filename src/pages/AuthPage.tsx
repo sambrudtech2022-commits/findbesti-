@@ -255,7 +255,7 @@ const AuthPage = () => {
               <div className="w-px h-7 bg-border/50" />
               <Input
                 type="tel"
-                placeholder="Enter mobile number"
+                placeholder={t("auth.enterMobile")}
                 value={phone}
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, "").slice(0, selectedCountry.maxDigits);
