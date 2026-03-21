@@ -273,7 +273,7 @@ const AuthPage = () => {
               disabled={loading || phone.length < 7}
               className="w-full h-12 rounded-2xl gradient-primary text-primary-foreground font-extrabold text-base shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
             >
-              {loading ? "भेज रहे हैं..." : "Get OTP →"}
+              {loading ? "Sending..." : "Get OTP →"}
             </Button>
           </div>
         ) : (
