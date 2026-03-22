@@ -112,7 +112,7 @@ const EarnCoinsPage = () => {
       } else {
         toast.success(data?.message || `₹${earnedCoins} withdrawal request submitted!`);
       }
-      setShowWithdraw(false);
+      
       setUpiId("");
       fetchData();
     } catch (error: any) {
