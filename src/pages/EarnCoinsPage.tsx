@@ -20,14 +20,14 @@ const EarnCoinsPage = () => {
   const { user } = useAuth();
   const [upiId, setUpiId] = useState("");
   const [showWithdraw, setShowWithdraw] = useState(false);
-  const [coins, setCoins] = useState(0);
+  const [earnedCoins, setEarnedCoins] = useState(0);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [taskLoading, setTaskLoading] = useState<string | null>(null);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
 
-  const rupees = coins;
+  const rupees = earnedCoins;
 
   useEffect(() => {
     if (user) {
