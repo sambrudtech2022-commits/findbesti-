@@ -161,21 +161,12 @@ const EarnCoinsPage = () => {
             </div>
           </div>
         </div>
-
-        <div className="mt-3">
-          <Button
-            onClick={() => setShowWithdraw(!showWithdraw)}
-            className="w-full h-11 rounded-xl bg-accent text-accent-foreground font-bold text-sm gap-2 hover:bg-accent/90">
-            <Wallet size={16} />
-            Withdraw
-          </Button>
-        </div>
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        {showWithdraw &&
-        <div className="bg-card border border-border/50 rounded-2xl p-4 mb-4 space-y-3 animate-in slide-in-from-top-2">
+        {/* UPI Withdrawal - Always Visible */}
+        <div className="bg-card border border-border/50 rounded-2xl p-4 mb-4 space-y-3">
             <div className="flex items-center gap-2">
               <Wallet size={16} className="text-primary" />
               <h3 className="font-bold text-sm text-foreground">UPI Withdrawal</h3>
@@ -190,19 +181,13 @@ const EarnCoinsPage = () => {
             onChange={(e) => setUpiId(e.target.value)}
             className="h-10 rounded-xl text-sm border-border/60" />
 
-            <div className="flex gap-2">
-              <Button
+            <Button
               onClick={handleWithdraw}
               disabled={earnedCoins < 100 || withdrawLoading}
-              className="flex-1 h-10 rounded-xl gradient-primary text-primary-foreground font-bold text-sm">
-                {withdrawLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : `Withdraw ₹${rupees}`}
-              </Button>
-              <Button onClick={() => setShowWithdraw(false)} variant="outline" className="h-10 rounded-xl border-border/60 text-sm">
-                Cancel
-              </Button>
-            </div>
+              className="w-full h-11 rounded-xl gradient-primary text-primary-foreground font-bold text-sm">
+              {withdrawLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : `Withdraw ₹${rupees}`}
+            </Button>
           </div>
-        }
 
         <h2 className="font-bold text-foreground mb-3">Complete Tasks to Earn</h2>
         <div className="space-y-2">
