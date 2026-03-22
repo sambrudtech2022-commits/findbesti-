@@ -63,14 +63,30 @@ const HomePage = () => {
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [countrySearch, setCountrySearch] = useState("");
   const [coins, setCoins] = useState(0);
+  const [earnings, setEarnings] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
   const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
+    // Fetch coin balance
     supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => { if (data) setCoins(data.coins ?? 0); });
+
+    // Fetch total earnings (gifts received + tasks completed)
+    const fetchEarnings = async () => {
+      const [giftsRes, tasksRes, referralsRes] = await Promise.all([
+        supabase.from("gift_transactions").select("coins_spent").eq("receiver_id", user.id),
+        supabase.from("task_completions").select("coins_earned").eq("user_id", user.id),
+        supabase.from("referrals").select("coins_awarded").eq("referrer_id", user.id),
+      ]);
+      const giftEarnings = (giftsRes.data ?? []).reduce((s, g) => s + (g.coins_spent ?? 0), 0);
+      const taskEarnings = (tasksRes.data ?? []).reduce((s, t) => s + (t.coins_earned ?? 0), 0);
+      const referralEarnings = (referralsRes.data ?? []).reduce((s, r) => s + (r.coins_awarded ?? 0), 0);
+      setEarnings(giftEarnings + taskEarnings + referralEarnings);
+    };
+    fetchEarnings();
   }, [user]);
 
   useEffect(() => {
@@ -113,7 +129,7 @@ const HomePage = () => {
                   className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all active:scale-95"
                 >
                   <Wallet size={18} className="text-accent" />
-                  <span className="text-sm font-bold text-foreground">₹{coins}</span>
+                  <span className="text-sm font-bold text-foreground">₹{earnings}</span>
                 </div>
                 <div className="w-px h-4 bg-border" />
                 <div
