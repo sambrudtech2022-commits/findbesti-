@@ -47,12 +47,13 @@ const EarnCoinsPage = () => {
 
     const today = new Date().toISOString().split("T")[0];
 
-    const [giftsRes, tasksRes, referralsRes, completionsRes, withdrawalsRes] = await Promise.all([
+    const [giftsRes, tasksRes, referralsRes, completionsRes, withdrawalsRes, profileRes] = await Promise.all([
       supabase.from("gift_transactions").select("coins_spent").eq("receiver_id", user.id),
       supabase.from("task_completions").select("coins_earned").eq("user_id", user.id),
       supabase.from("referrals").select("coins_awarded").eq("referrer_id", user.id),
       supabase.from("task_completions").select("task_id").eq("user_id", user.id).eq("completed_date", today),
       supabase.from("withdrawal_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle(),
     ]);
 
     const giftEarnings = (giftsRes.data ?? []).reduce((s, g) => s + (g.coins_spent ?? 0), 0);
