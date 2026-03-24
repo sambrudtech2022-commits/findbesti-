@@ -32,7 +32,11 @@ const EarnCoinsPage = () => {
 
   useEffect(() => {
     if (user) {
-      fetchData();
+      fetchData().then(() => {
+        if (searchParams.get("withdraw") === "true" && withdrawRef.current) {
+          setTimeout(() => withdrawRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+        }
+      });
     }
   }, [user]);
 
