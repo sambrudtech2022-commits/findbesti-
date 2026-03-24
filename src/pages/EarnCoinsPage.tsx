@@ -22,6 +22,7 @@ const EarnCoinsPage = () => {
   const withdrawRef = useRef<HTMLDivElement>(null);
   const [upiId, setUpiId] = useState("");
   const [earnedCoins, setEarnedCoins] = useState(0);
+  const [rechargeCoins, setRechargeCoins] = useState(0);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [taskLoading, setTaskLoading] = useState<string | null>(null);
