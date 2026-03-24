@@ -172,7 +172,7 @@ const EarnCoinsPage = () => {
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
         {/* UPI Withdrawal - Always Visible */}
-        <div className="bg-card border border-border/50 rounded-2xl p-4 mb-4 space-y-3">
+        <div ref={withdrawRef} className="bg-card border border-border/50 rounded-2xl p-4 mb-4 space-y-3">
             <div className="flex items-center gap-2">
               <Wallet size={16} className="text-primary" />
               <h3 className="font-bold text-sm text-foreground">UPI Withdrawal</h3>
