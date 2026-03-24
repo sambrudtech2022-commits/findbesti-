@@ -231,29 +231,43 @@ const EarnCoinsPage = () => {
             <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
               <Clock size={16} className="text-muted-foreground" />
               Withdrawal History
+              <span className="text-[10px] text-muted-foreground font-normal ml-auto">{withdrawals.length} transactions</span>
             </h2>
             <div className="space-y-2">
               {withdrawals.map((w) => {
-              const statusColor = w.status === "completed" ? "text-online" : w.status === "failed" ? "text-destructive" : "text-accent";
-              const statusBg = w.status === "completed" ? "bg-online/10" : w.status === "failed" ? "bg-destructive/10" : "bg-accent/10";
+              const statusConfig = {
+                completed: { color: "text-online", bg: "bg-online/10", border: "border-online/20", icon: "✓", label: "Success" },
+                approved: { color: "text-online", bg: "bg-online/10", border: "border-online/20", icon: "✓", label: "Approved" },
+                pending: { color: "text-accent", bg: "bg-accent/10", border: "border-accent/20", icon: "⏳", label: "Pending" },
+                failed: { color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/20", icon: "✗", label: "Failed" },
+                rejected: { color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/20", icon: "✗", label: "Rejected" },
+              }[w.status] || { color: "text-muted-foreground", bg: "bg-muted/10", border: "border-border/30", icon: "?", label: w.status };
               const date = new Date(w.created_at);
               const dateStr = date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+              const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
               return (
-                <div key={w.id} className="flex items-center gap-3 py-3 px-3 rounded-xl bg-card border border-border/50">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${statusBg}`}>
-                      <IndianRupee size={16} className={statusColor} />
+                <div key={w.id} className={`py-3 px-3 rounded-xl bg-card border ${statusConfig.border} space-y-2`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${statusConfig.bg}`}>
+                        <IndianRupee size={18} className={statusConfig.color} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-extrabold text-foreground">₹{w.amount}</p>
+                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${statusConfig.bg} ${statusConfig.color} flex items-center gap-1`}>
+                            <span>{statusConfig.icon}</span>
+                            {statusConfig.label}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <Wallet size={10} className="text-muted-foreground shrink-0" />
+                          <p className="text-[11px] text-muted-foreground truncate">{w.upi_id}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-bold text-sm text-foreground">₹{w.amount}</p>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusBg} ${statusColor} capitalize`}>
-                          {w.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between mt-0.5">
-                        <p className="text-[10px] text-muted-foreground">{w.upi_id}</p>
-                        <p className="text-[10px] text-muted-foreground">{dateStr}</p>
-                      </div>
+                    <div className="flex items-center justify-between pl-[52px]">
+                      <p className="text-[10px] text-muted-foreground">{dateStr}</p>
+                      <p className="text-[10px] text-muted-foreground">{timeStr}</p>
                     </div>
                   </div>);
             })}
