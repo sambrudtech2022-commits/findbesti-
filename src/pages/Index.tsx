@@ -74,17 +74,21 @@ const HomePage = () => {
     supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => { if (data) setCoins(data.coins ?? 0); });
 
-    // Fetch total earnings (gifts received + tasks completed)
+    // Fetch net earnings (gifts + tasks + referrals - withdrawals)
     const fetchEarnings = async () => {
-      const [giftsRes, tasksRes, referralsRes] = await Promise.all([
+      const [giftsRes, tasksRes, referralsRes, withdrawalsRes] = await Promise.all([
         supabase.from("gift_transactions").select("coins_spent").eq("receiver_id", user.id),
         supabase.from("task_completions").select("coins_earned").eq("user_id", user.id),
         supabase.from("referrals").select("coins_awarded").eq("referrer_id", user.id),
+        supabase.from("withdrawal_requests").select("amount, status").eq("user_id", user.id),
       ]);
       const giftEarnings = (giftsRes.data ?? []).reduce((s, g) => s + (g.coins_spent ?? 0), 0);
       const taskEarnings = (tasksRes.data ?? []).reduce((s, t) => s + (t.coins_earned ?? 0), 0);
       const referralEarnings = (referralsRes.data ?? []).reduce((s, r) => s + (r.coins_awarded ?? 0), 0);
-      setEarnings(giftEarnings + taskEarnings + referralEarnings);
+      const totalWithdrawn = (withdrawalsRes.data ?? [])
+        .filter((w: any) => w.status === "completed" || w.status === "pending" || w.status === "approved")
+        .reduce((s: number, w: any) => s + (w.amount ?? 0), 0);
+      setEarnings(Math.max(0, giftEarnings + taskEarnings + referralEarnings - totalWithdrawn));
     };
     fetchEarnings();
   }, [user]);
