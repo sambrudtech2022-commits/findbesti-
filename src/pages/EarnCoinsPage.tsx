@@ -22,6 +22,7 @@ const EarnCoinsPage = () => {
   const withdrawRef = useRef<HTMLDivElement>(null);
   const [upiId, setUpiId] = useState("");
   const [earnedCoins, setEarnedCoins] = useState(0);
+  const [rechargeCoins, setRechargeCoins] = useState(0);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [taskLoading, setTaskLoading] = useState<string | null>(null);
@@ -46,12 +47,13 @@ const EarnCoinsPage = () => {
 
     const today = new Date().toISOString().split("T")[0];
 
-    const [giftsRes, tasksRes, referralsRes, completionsRes, withdrawalsRes] = await Promise.all([
+    const [giftsRes, tasksRes, referralsRes, completionsRes, withdrawalsRes, profileRes] = await Promise.all([
       supabase.from("gift_transactions").select("coins_spent").eq("receiver_id", user.id),
       supabase.from("task_completions").select("coins_earned").eq("user_id", user.id),
       supabase.from("referrals").select("coins_awarded").eq("referrer_id", user.id),
       supabase.from("task_completions").select("task_id").eq("user_id", user.id).eq("completed_date", today),
       supabase.from("withdrawal_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("profiles").select("coins").eq("user_id", user.id).maybeSingle(),
     ]);
 
     const giftEarnings = (giftsRes.data ?? []).reduce((s, g) => s + (g.coins_spent ?? 0), 0);
@@ -62,6 +64,7 @@ const EarnCoinsPage = () => {
       .reduce((s: number, w: any) => s + (w.amount ?? 0), 0);
 
     setEarnedCoins(Math.max(0, giftEarnings + taskEarnings + referralEarnings - totalWithdrawn));
+    setRechargeCoins(profileRes.data?.coins ?? 0);
     if (completionsRes.data) setCompletedTasks(completionsRes.data.map((t: any) => t.task_id));
     if (withdrawalsRes.data) setWithdrawals(withdrawalsRes.data);
     setLoading(false);
@@ -148,22 +151,23 @@ const EarnCoinsPage = () => {
 
         {/* Balance Card */}
         <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                <Wallet size={24} className="text-accent" />
-              </div>
-              <div>
-                <p className="text-primary-foreground/60 text-xs font-medium">Your Earnings</p>
-                <div className="flex items-center gap-1">
-                  <IndianRupee size={20} className="text-primary-foreground" />
-                  <p className="text-2xl font-extrabold text-primary-foreground">{rupees}</p>
-                </div>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+              <Wallet size={24} className="text-accent" />
+            </div>
+            <div className="flex-1">
+              <p className="text-primary-foreground/60 text-xs font-medium">Your Earnings</p>
+              <div className="flex items-center gap-1">
+                <IndianRupee size={20} className="text-primary-foreground" />
+                <p className="text-2xl font-extrabold text-primary-foreground">{rupees}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-primary-foreground/60 text-xs font-medium">From</p>
-              <p className="text-xs text-primary-foreground/80">Gifts, Tasks &amp; Referrals</p>
+            <div className="text-right border-l border-primary-foreground/20 pl-3">
+              <p className="text-primary-foreground/60 text-xs font-medium">Recharge</p>
+              <div className="flex items-center gap-1 justify-end">
+                <span className="text-base">🪙</span>
+                <p className="text-lg font-extrabold text-primary-foreground">{rechargeCoins}</p>
+              </div>
             </div>
           </div>
         </div>
