@@ -64,6 +64,7 @@ const EarnCoinsPage = () => {
       .reduce((s: number, w: any) => s + (w.amount ?? 0), 0);
 
     setEarnedCoins(Math.max(0, giftEarnings + taskEarnings + referralEarnings - totalWithdrawn));
+    setRechargeCoins(profileRes.data?.coins ?? 0);
     if (completionsRes.data) setCompletedTasks(completionsRes.data.map((t: any) => t.task_id));
     if (withdrawalsRes.data) setWithdrawals(withdrawalsRes.data);
     setLoading(false);
