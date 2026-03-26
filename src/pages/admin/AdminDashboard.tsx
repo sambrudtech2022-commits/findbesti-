@@ -201,6 +201,14 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Advanced Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ActiveUsersTrendChart />
+        <GenderDistributionChart />
+        <GiftAnalyticsChart />
+        <WithdrawalStatsChart />
+      </div>
     </div>
   );
 };
