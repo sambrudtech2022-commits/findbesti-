@@ -10,6 +10,7 @@ import GenderDistributionChart from "@/components/admin/charts/GenderDistributio
 import GiftAnalyticsChart from "@/components/admin/charts/GiftAnalyticsChart";
 import ActiveUsersTrendChart from "@/components/admin/charts/ActiveUsersTrendChart";
 import WithdrawalStatsChart from "@/components/admin/charts/WithdrawalStatsChart";
+import TopGiftersTable from "@/components/admin/charts/TopGiftersTable";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -208,6 +209,7 @@ const AdminDashboard = () => {
         <GenderDistributionChart />
         <GiftAnalyticsChart />
         <WithdrawalStatsChart />
+        <TopGiftersTable />
       </div>
     </div>
   );
