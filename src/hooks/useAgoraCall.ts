@@ -28,6 +28,26 @@ export const useAgoraCall = ({ channelName, callType }: UseAgoraCallOptions) => 
   const [callTime, setCallTime] = useState(0);
   const [isFrontCamera, setIsFrontCamera] = useState(true);
 
+  // Ringing sound
+  const ringAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (joined && remoteUsers.length === 0) {
+      const audio = new Audio("/ringtone.wav");
+      audio.loop = true;
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+      ringAudioRef.current = audio;
+    } else {
+      ringAudioRef.current?.pause();
+      ringAudioRef.current = null;
+    }
+    return () => {
+      ringAudioRef.current?.pause();
+      ringAudioRef.current = null;
+    };
+  }, [joined, remoteUsers.length]);
+
   // Timer
   useEffect(() => {
     if (!joined) return;
