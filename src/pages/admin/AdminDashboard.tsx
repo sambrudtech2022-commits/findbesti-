@@ -211,6 +211,7 @@ const AdminDashboard = () => {
         <GiftAnalyticsChart />
         <WithdrawalStatsChart />
         <TopGiftersTable />
+        <TopReceiversTable />
       </div>
     </div>
   );
