@@ -334,7 +334,7 @@ const AuthPage = () => {
         </Button>
 
         {/* Footer */}
-        <p className="text-center text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
+        <p className="text-center text-[11px] text-muted-foreground mt-2.5 leading-relaxed">
           {t("auth.terms")}{" "}
           <span className="font-bold text-foreground underline underline-offset-2">{t("auth.termsLink")}</span> &{" "}
           <span className="font-bold text-foreground underline underline-offset-2">{t("auth.guidelinesLink")}</span>
