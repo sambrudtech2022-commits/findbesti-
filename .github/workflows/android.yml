@@ -1,4 +1,4 @@
-name: Build APK
+name: Android APK Build
 
 on:
   workflow_dispatch:
@@ -8,7 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web
+        run: npm run build
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -16,21 +28,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install packages
-        run: npm install
-
-      - name: Add Android
-        run: npx cap add android
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Build APK
         run: |
-          npm run build
-          npx cap sync android
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
