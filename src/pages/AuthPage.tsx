@@ -145,37 +145,37 @@ const AuthPage = () => {
     <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
 
       {/* Hero Section */}
-      <div className="gradient-primary relative flex-1 flex flex-col px-6 pt-12 pb-8 overflow-hidden">
-        <div className="absolute top-8 right-6 animate-bounce-in" style={{ animationDelay: "0.3s" }}>
-          <div className="w-14 h-14 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center rotate-12">
-            <Heart className="w-7 h-7 text-primary-foreground fill-primary-foreground/50" />
+      <div className="gradient-primary relative flex-shrink-0 flex flex-col px-6 pt-10 pb-6 min-h-[40vh]">
+        <div className="absolute top-6 right-6 animate-bounce-in" style={{ animationDelay: "0.3s" }}>
+          <div className="w-12 h-12 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center rotate-12">
+            <Heart className="w-6 h-6 text-primary-foreground fill-primary-foreground/50" />
           </div>
         </div>
-        <div className="absolute top-32 right-14 animate-bounce-in" style={{ animationDelay: "0.5s" }}>
+        <div className="absolute top-24 right-14 animate-bounce-in" style={{ animationDelay: "0.5s" }}>
           <div className="w-8 h-8 rounded-xl bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center -rotate-12">
             <Sparkles className="w-4 h-4 text-primary-foreground" />
           </div>
         </div>
-        <div className="absolute bottom-16 left-6 w-20 h-20 rounded-full bg-primary-foreground/5 blur-xl" />
-        <div className="absolute top-20 left-1/2 w-32 h-32 rounded-full bg-primary-foreground/5 blur-2xl" />
+        <div className="absolute bottom-12 left-6 w-20 h-20 rounded-full bg-primary-foreground/5 blur-xl" />
+        <div className="absolute top-16 left-1/2 w-32 h-32 rounded-full bg-primary-foreground/5 blur-2xl" />
 
         <div className="animate-slide-up">
-          <h1 className="text-5xl font-black text-primary-foreground italic tracking-tight leading-none">FIND</h1>
-          <h1 className="text-5xl font-black text-primary-foreground italic tracking-tight leading-none mt-1">BESTI</h1>
+          <h1 className="text-4xl font-black text-primary-foreground italic tracking-tight leading-none">FIND</h1>
+          <h1 className="text-4xl font-black text-primary-foreground italic tracking-tight leading-none mt-1">BESTI</h1>
         </div>
 
-        <div className="mt-8 space-y-2 animate-slide-up" style={{ animationDelay: "0.15s" }}>
+        <div className="mt-5 space-y-1.5 animate-slide-up" style={{ animationDelay: "0.15s" }}>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-primary-foreground" />
+            <div className="w-7 h-7 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+              <Shield className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
-            <p className="text-lg font-bold text-primary-foreground/90">{t("auth.safe")}</p>
+            <p className="text-base font-bold text-primary-foreground/90">{t("auth.safe")}</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary-foreground" />
+            <div className="w-7 h-7 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
-            <p className="text-lg font-bold text-primary-foreground/80">{t("auth.noFake")}</p>
+            <p className="text-base font-bold text-primary-foreground/80">{t("auth.noFake")}</p>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ const AuthPage = () => {
       </div>
 
       {/* Bottom Auth Card */}
-      <div className="bg-card rounded-t-[2rem] -mt-8 relative z-10 px-5 pt-6 pb-5 shadow-[0_-12px_40px_rgba(0,0,0,0.1)] animate-slide-up" style={{ animationDelay: "0.25s" }}>
+      <div className="bg-card rounded-t-[2rem] -mt-6 relative z-10 px-5 pt-5 pb-4 shadow-[0_-12px_40px_rgba(0,0,0,0.1)] animate-slide-up" style={{ animationDelay: "0.25s" }}>
         {!otpSent ? (
           <div className="space-y-3.5">
             <div className="flex items-center gap-0 h-14 rounded-2xl bg-muted/40 border-2 border-border/40 overflow-visible relative focus-within:border-primary/40 transition-colors">
