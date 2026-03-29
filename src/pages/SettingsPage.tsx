@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { APP_VERSION } from "@/config/appVersion";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -247,6 +248,11 @@ const SettingsPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Version Info */}
+      <div className="text-center py-4">
+        <p className="text-xs text-muted-foreground">FindBesti v{APP_VERSION}</p>
+      </div>
     </div>
   );
 };

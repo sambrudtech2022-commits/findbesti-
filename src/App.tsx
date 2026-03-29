@@ -37,8 +37,10 @@ import AdminSecretsPage from "./pages/admin/AdminSecretsPage";
 import AdminCoinPacksPage from "./pages/admin/AdminCoinPacksPage";
 import MaintenanceScreen from "./components/MaintenanceScreen";
 import AnnouncementBanner from "./components/AnnouncementBanner";
+import ForceUpdateScreen from "./components/ForceUpdateScreen";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useScreenProtection } from "@/hooks/useScreenProtection";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1 } },
@@ -59,6 +61,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const RootRoute = () => {
   const { user, loading } = useAuth();
+  const { needsUpdate, currentVersion, requiredVersion } = useVersionCheck();
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -66,6 +69,7 @@ const RootRoute = () => {
       </div>
     );
   }
+  if (needsUpdate) return <ForceUpdateScreen currentVersion={currentVersion} requiredVersion={requiredVersion} />;
   if (!user) return <AuthPage />;
   return <MaintenanceScreen><AnnouncementBanner /><Index /></MaintenanceScreen>;
 };
