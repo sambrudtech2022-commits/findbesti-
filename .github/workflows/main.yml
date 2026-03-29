@@ -1,31 +1,50 @@
-- name: Setup Node.js
-  uses: actions/setup-node@v3
-  with:
-    node-version: 22
+name: Build Android APK
 
-- name: Install dependencies
-  run: npm install
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-- name: Build web app
-  run: npm run build
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
 
-- name: Install Capacitor
-  run: npm install @capacitor/core @capacitor/cli @capacitor/android
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-- name: Add Android platform
-  run: npx cap add android
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-- name: Sync Capacitor
-  run: npx cap sync android
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-- name: Build APK
-  run: |
-    cd android
-    chmod +x gradlew
-    ./gradlew assembleDebug
+      - name: Install dependencies
+        run: npm install
 
-- name: Upload APK
-  uses: actions/upload-artifact@v4
-  with:
-    name: app-debug
-    path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Build web app
+        run: npm run build
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
