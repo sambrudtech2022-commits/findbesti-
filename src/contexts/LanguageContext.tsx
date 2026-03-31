@@ -26,6 +26,7 @@ const translations: Translations = {
   "auth.terms": { en: "By proceeding I accept the", hi: "आगे बढ़कर मैं स्वीकार करता/करती हूँ" },
   "auth.termsLink": { en: "Terms", hi: "शर्तें" },
   "auth.guidelinesLink": { en: "Community Guidelines", hi: "सामुदायिक दिशानिर्देश" },
+  "auth.privacyLink": { en: "Privacy Policy", hi: "गोपनीयता नीति" },
   "auth.safe": { en: "100% safe & secure", hi: "100% सुरक्षित" },
   "auth.noFake": { en: "Zero fake profiles", hi: "कोई फर्जी प्रोफ़ाइल नहीं" },
 
