@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,6 +11,7 @@ import { initFirebase, setupRecaptcha, sendFirebaseOtp, type ConfirmationResult,
 import { countryCodes, type CountryCode } from "@/data/countryCodes";
 
 const AuthPage = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -336,8 +338,8 @@ const AuthPage = () => {
         {/* Footer */}
         <p className="text-center text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
           {t("auth.terms")}{" "}
-          <span className="font-bold text-foreground underline underline-offset-2">{t("auth.termsLink")}</span> &{" "}
-          <span className="font-bold text-foreground underline underline-offset-2">{t("auth.guidelinesLink")}</span>
+          <button onClick={() => navigate("/terms")} className="font-bold text-foreground underline underline-offset-2">{t("auth.termsLink")}</button> &{" "}
+          <button onClick={() => navigate("/privacy-policy")} className="font-bold text-foreground underline underline-offset-2">{t("auth.privacyLink") || "Privacy Policy"}</button>
         </p>
       </div>
     </div>
