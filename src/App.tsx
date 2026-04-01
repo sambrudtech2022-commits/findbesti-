@@ -43,6 +43,7 @@ import ForceUpdateScreen from "./components/ForceUpdateScreen";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useScreenProtection } from "@/hooks/useScreenProtection";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
+import SplashScreen from "@/components/SplashScreen";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1 } },
