@@ -59,13 +59,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const RootRoute = () => {
   const { user, loading } = useAuth();
   const { needsUpdate, currentVersion, requiredVersion } = useVersionCheck();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return <SplashScreen />;
   if (needsUpdate) return <ForceUpdateScreen currentVersion={currentVersion} requiredVersion={requiredVersion} />;
   if (!user) return <AuthPage />;
   return <MaintenanceScreen><AnnouncementBanner /><Index /></MaintenanceScreen>;
