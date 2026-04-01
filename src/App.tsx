@@ -43,6 +43,7 @@ import ForceUpdateScreen from "./components/ForceUpdateScreen";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useScreenProtection } from "@/hooks/useScreenProtection";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
+import SplashScreen from "@/components/SplashScreen";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1 } },
@@ -50,13 +51,7 @@ const queryClient = new QueryClient({
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return <SplashScreen />;
   if (!user) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
@@ -64,13 +59,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const RootRoute = () => {
   const { user, loading } = useAuth();
   const { needsUpdate, currentVersion, requiredVersion } = useVersionCheck();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return <SplashScreen />;
   if (needsUpdate) return <ForceUpdateScreen currentVersion={currentVersion} requiredVersion={requiredVersion} />;
   if (!user) return <AuthPage />;
   return <MaintenanceScreen><AnnouncementBanner /><Index /></MaintenanceScreen>;
@@ -79,13 +68,7 @@ const RootRoute = () => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { isAdmin, isLoading } = useAdminCheck();
-  if (loading || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading || isLoading) return <SplashScreen />;
   if (!user) return <Navigate to="/x-panel/login" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
   return <>{children}</>;
