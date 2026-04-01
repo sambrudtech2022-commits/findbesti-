@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import LegalPagesEditor from "@/components/admin/LegalPagesEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
