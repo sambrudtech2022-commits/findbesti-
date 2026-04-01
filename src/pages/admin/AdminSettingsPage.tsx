@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Settings, Wrench, Megaphone, Smartphone, Save, Phone, Video, Crown, Plus, Trash2 } from "lucide-react";
+import { Settings, Wrench, Megaphone, Smartphone, Save, Phone, Video, Crown, Plus, Trash2, Shield, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 interface SubscriptionPlan {
@@ -382,6 +382,33 @@ const AdminSettingsPage = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Legal Pages */}
+      <div className="bg-card rounded-2xl border border-border/50 p-5 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-bold text-foreground">Legal Pages</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            className="h-12 rounded-xl gap-2 font-medium"
+            onClick={() => window.open("/privacy-policy", "_blank")}
+          >
+            <FileText className="w-4 h-4" />
+            Privacy Policy
+          </Button>
+          <Button
+            variant="outline"
+            className="h-12 rounded-xl gap-2 font-medium"
+            onClick={() => window.open("/terms", "_blank")}
+          >
+            <FileText className="w-4 h-4" />
+            Terms & Conditions
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">These pages are live and accessible to users from the Auth page and Settings.</p>
       </div>
 
       {/* Save */}
